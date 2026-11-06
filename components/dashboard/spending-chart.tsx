@@ -24,7 +24,7 @@ export function SpendingChart() {
           </h3>
 
           <p className="mt-1 text-sm text-slate-500">
-            Your monthly expense trend
+            Historical demo chart — live analytics coming next
           </p>
         </div>
 

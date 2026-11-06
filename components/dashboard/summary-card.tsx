@@ -1,9 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  formatMoney,
-  type SummaryItem,
-} from "@/lib/dashboard-data";
+import { formatNpr } from "@/lib/finance";
+import type { SummaryItem } from "@/lib/dashboard-data";
 
 interface SummaryCardProps {
   item: SummaryItem;
@@ -26,11 +24,11 @@ export function SummaryCard({ item }: SummaryCardProps) {
         </div>
 
         <h2 className="text-3xl font-semibold tracking-tight">
-          {formatMoney(item.amount)}
+          {formatNpr(Math.round(item.amount * 100))}
         </h2>
 
         <p className="mt-2 text-xs text-slate-400">
-          Sample financial data
+          Calculated from current prototype transactions
         </p>
       </CardContent>
     </Card>

@@ -1,5 +1,10 @@
-import type { NextConfig } from "next"
 
-const nextConfig: NextConfig = {}
+import type { NextConfig } from "next";
 
-export default nextConfig
+const nextConfig: NextConfig = {
+  devIndicators: {
+    position: "top-right",
+  },
+};
+
+export default nextConfig;
