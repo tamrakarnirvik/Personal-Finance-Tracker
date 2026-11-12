@@ -2,41 +2,76 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { CircleUserRound } from "lucide-react";
+
 import { ThemeToggle } from "@/components/theme-toggle";
-import { navItems, isActiveRoute } from "@/lib/navigation";
+import { shellNavItems } from "@/lib/shell-navigation";
 
 export function AppHeader() {
   const pathname = usePathname();
 
   const currentPage =
-    navItems.find((item) =>
-      isActiveRoute(pathname, item.href)
-    )?.name ?? "Dashboard";
+    shellNavItems.find(
+      (item) =>
+        pathname === item.href ||
+        pathname.startsWith(`${item.href}/`)
+    )?.title ?? "Workspace";
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/90 sm:px-6 lg:h-20 lg:px-8">
-      <div className="min-w-0">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Personal Finance
-        </p>
+    <header
+      className="
+        sticky top-0 z-30
+        border-b border-border
+        bg-background/90
+        backdrop-blur-xl
+      "
+    >
+      
+<div className="mx-auto flex h-19 w-full max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-8 lg:px-10">
 
-        <h2 className="truncate text-sm font-semibold sm:text-base">
-          {currentPage}
-        </h2>
-      </div>
+        {/* Page context */}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+            <span className="hidden sm:inline">
+              Personal Finance
+            </span>
 
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-        <span className="hidden rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300 sm:inline-flex">
-          Demo Data
-        </span>
+            <span className="hidden text-border sm:inline">
+              /
+            </span>
 
-        <ThemeToggle />
+            <span className="truncate">
+              {currentPage}
+            </span>
+          </div>
 
-        <div
-          aria-label="Demo profile"
-          className="flex size-10 items-center justify-center rounded-xl bg-slate-100 text-sm font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-        >
-          ET
+          <p 
+className="mt-1 truncate text-[15px] font-semibold tracking-tight text-foreground sm:text-base"
+>
+            {currentPage}
+          </p>
+        </div>
+
+        {/* Right controls */}
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <span className="hidden rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold tracking-wide text-muted-foreground sm:inline-flex">
+            NPR
+          </span>
+
+          {/* Existing working light/dark mode control */}
+          <ThemeToggle />
+
+          <div
+            className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground"
+            aria-label="Personal workspace"
+            title="Personal workspace"
+          >
+            <CircleUserRound
+              size={19}
+              strokeWidth={1.7}
+              aria-hidden="true"
+            />
+          </div>
         </div>
       </div>
     </header>

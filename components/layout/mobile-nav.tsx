@@ -1,102 +1,92 @@
 
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MoreHorizontal, X } from "lucide-react";
+import { useState } from "react";
+import { MoreHorizontal } from "lucide-react";
 
-import { navItems, isActiveRoute } from "@/lib/navigation";
+import {
+  shellNavItems,
+  isShellRouteActive,
+} from "@/lib/shell-navigation";
 
-const mainPages = [
-  "/dashboard",
-  "/transactions",
-  "/accounts",
-  "/budgets",
-];
+const primaryItems = shellNavItems.slice(0, 4);
+const secondaryItems = shellNavItems.slice(4);
 
 export function MobileNav() {
   const pathname = usePathname();
+
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const primaryItems = navItems.filter((item) =>
-    mainPages.includes(item.href)
-  );
-
-  const extraItems = navItems.filter(
-    (item) => !mainPages.includes(item.href)
-  );
-
-  const moreActive = extraItems.some((item) =>
-    isActiveRoute(pathname, item.href)
+  const moreActive = secondaryItems.some(
+    (item) => isShellRouteActive(pathname, item.href)
   );
 
   return (
-    <>
+    <nav
+      aria-label="Mobile navigation"
+      className="
+        fixed inset-x-0 bottom-0 z-50
+        border-t border-border
+        bg-card/95
+        shadow-[0_-8px_28px_rgba(17,24,39,0.04)]
+        backdrop-blur-xl lg:hidden
+      "
+      style={{
+        paddingBottom:
+          "max(0.5rem, env(safe-area-inset-bottom))",
+      }}
+    >
+      {/* More menu */}
       {moreOpen && (
-        <>
-          <button
-            type="button"
-            aria-label="Close additional navigation"
-            onClick={() => setMoreOpen(false)}
-            className="fixed inset-0 z-40 bg-black/25 lg:hidden"
-          />
+        <div
+          id="mobile-more-menu"
+          className="
+            absolute bottom-[calc(100%+12px)] right-3
+            w-52 rounded-2xl border border-border
+            bg-card p-2 shadow-xl
+          "
+        >
+          <p className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            More pages
+          </p>
 
-          <div
-            id="mobile-more-navigation"
-            aria-label="Additional pages"
-            className="fixed inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-800 dark:bg-slate-900 lg:hidden"
-          >
-            <div className="mb-2 flex items-center justify-between px-2">
-              <p className="text-sm font-semibold">
-                More pages
-              </p>
+          {secondaryItems.map((item) => {
+            const Icon = item.icon;
+            const active = isShellRouteActive(
+              pathname,
+              item.href
+            );
 
-              <button
-                type="button"
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
                 onClick={() => setMoreOpen(false)}
-                aria-label="Close menu"
-                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
+                aria-current={active ? "page" : undefined}
+                className={[
+                  "flex items-center gap-3 rounded-xl",
+                  "px-3 py-3 text-sm font-medium",
+                  "transition-colors duration-200",
+                  active
+                    ? "bg-accent text-accent-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                ].join(" ")}
               >
-                <X size={18} />
-              </button>
-            </div>
-
-            {extraItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActiveRoute(
-                pathname,
-                item.href
-              );
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMoreOpen(false)}
-                  aria-current={active ? "page" : undefined}
-                  className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${
-                    active
-                      ? "bg-emerald-50 font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
-                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-                  }`}
-                >
-                  <Icon size={19} />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-        </>
+                <Icon size={18} strokeWidth={1.8} />
+                {item.title}
+              </Link>
+            );
+          })}
+        </div>
       )}
 
-      <nav
-        aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around gap-1 border-t border-slate-200 bg-white/95 px-2 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-5px_25px_rgba(0,0,0,0.03)] backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/95 lg:hidden"
-      >
+      {/* Bottom navigation */}
+      <div className="mx-auto grid max-w-lg grid-cols-5 gap-1 px-2 pt-2">
         {primaryItems.map((item) => {
           const Icon = item.icon;
-          const active = isActiveRoute(
+          const active = isShellRouteActive(
             pathname,
             item.href
           );
@@ -105,35 +95,54 @@ export function MobileNav() {
             <Link
               key={item.href}
               href={item.href}
-              onClick={() => setMoreOpen(false)}
               aria-current={active ? "page" : undefined}
-              className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-emerald-500 ${
+              onClick={() => setMoreOpen(false)}
+              className={[
+                "flex min-w-0 flex-col items-center",
+                "justify-center gap-1 rounded-xl",
+                "px-1 py-2 text-[10px] font-medium",
+                "transition-colors duration-200",
                 active
-                  ? "bg-emerald-50 font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
-                  : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-              }`}
+                  ? "bg-accent text-accent-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              ].join(" ")}
             >
-              <Icon size={20} strokeWidth={active ? 2.3 : 1.8} />
-              <span className="truncate">{item.name}</span>
+              <Icon
+                size={20}
+                strokeWidth={active ? 2.1 : 1.8}
+              />
+
+              <span className="truncate">
+                {item.title}
+              </span>
             </Link>
           );
         })}
 
+        {/* More button */}
         <button
           type="button"
-          onClick={() => setMoreOpen((value) => !value)}
+          aria-label="More"
           aria-expanded={moreOpen}
-          aria-controls="mobile-more-navigation"
-          className={`flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[10px] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-emerald-500 ${
-            moreOpen || moreActive
-              ? "bg-emerald-50 font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400"
-              : "text-slate-500 dark:text-slate-400"
-          }`}
+          aria-controls="mobile-more-menu"
+          onClick={() =>
+            setMoreOpen((previous) => !previous)
+          }
+          className={[
+            "flex min-w-0 flex-col items-center",
+            "justify-center gap-1 rounded-xl",
+            "px-1 py-2 text-[10px] font-medium",
+            "transition-colors duration-200",
+            moreActive || moreOpen
+              ? "bg-accent text-accent-foreground"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+          ].join(" ")}
         >
-          <MoreHorizontal size={20} />
+          <MoreHorizontal size={20} strokeWidth={1.9} />
+
           <span>More</span>
         </button>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 }
