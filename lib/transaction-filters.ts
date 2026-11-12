@@ -1,8 +1,11 @@
 
+
 import type {
   FinanceAccount,
   FinanceTransaction,
+  FinanceCategory,
 } from "@/types/finance";
+
 
 import { getCategoryName } from "@/lib/transaction-categories";
 
@@ -30,17 +33,27 @@ export interface TransactionFilters {
   sort: TransactionSort;
 }
 
+
 export function filterTransactions(
   transactions: FinanceTransaction[],
   accounts: FinanceAccount[],
-  filters: TransactionFilters
+  filters: TransactionFilters,
+  categories?: FinanceCategory[]
 ): FinanceTransaction[] {
+  const categoryNames = new Map(
+    (categories ?? []).map((category) => [
+      category.id,
+      category.name,
+    ] as const)
+  );
+
   const accountNames = new Map(
     accounts.map((account) => [
       account.id,
       account.name,
     ])
   );
+
 
   const query = filters.search.trim().toLowerCase();
 
@@ -119,7 +132,10 @@ export function filterTransactions(
           : [
               transaction.note,
               transaction.type,
-              getCategoryName(transaction.categoryId),
+              
+categoryNames.get(transaction.categoryId) ??
+  getCategoryName(transaction.categoryId),
+
               accountNames.get(transaction.accountId),
             ];
 

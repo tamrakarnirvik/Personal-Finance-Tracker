@@ -1,4 +1,4 @@
-
+import { CategoryProvider } from "@/components/categories/category-provider"
 import type { ReactNode } from "react";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
@@ -15,6 +15,7 @@ export default function WorkspaceLayout({
 }) {
   return (
     <TransactionProvider>
+      <CategoryProvider>
       <div className="min-h-dvh overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
         <AppSidebar />
 
@@ -33,6 +34,7 @@ export default function WorkspaceLayout({
 
         <MobileNav />
       </div>
+      </CategoryProvider>
     </TransactionProvider>
   );
 }

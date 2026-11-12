@@ -14,10 +14,9 @@ import {
   parseNprToPaisa,
 } from "@/lib/finance";
 
-import {
-  categoryOptions,
-  getCategoryName,
-} from "@/lib/transaction-categories";
+
+import { useCategories } from "@/components/categories/category-provider";
+
 
 import {
   filterTransactions,
@@ -52,7 +51,11 @@ export default function TransactionsPage() {
     transactions,
     accounts,
     deleteEntry,
-  } = useTransactions();
+  } = useTransactions()
+
+const { categories, getCategoryName } = useCategories();
+
+  
 
   const [search, setSearch] = useState("");
   const [type, setType] =
@@ -66,17 +69,15 @@ export default function TransactionsPage() {
   const [sort, setSort] =
     useState<TransactionSort>("newest");
 
-  const categories =
-    type === "income"
-      ? categoryOptions.income
-      : type === "expense"
-        ? categoryOptions.expense
-        : type === "transfer"
-          ? []
-          : [
-              ...categoryOptions.expense,
-              ...categoryOptions.income,
-            ];
+  
+const visibleCategories =
+  type === "transfer"
+    ? []
+    : categories.filter(
+        (category) =>
+          type === "all" || category.type === type
+      );
+
 
   const result = useMemo(() => {
     try {
@@ -99,21 +100,24 @@ export default function TransactionsPage() {
         );
       }
 
-      const rows = filterTransactions(
-        transactions,
-        accounts,
-        {
-          search,
-          type,
-          categoryId,
-          accountId,
-          fromDate,
-          toDate,
-          minAmountPaisa,
-          maxAmountPaisa,
-          sort,
-        }
-      );
+      
+const rows = filterTransactions(
+  transactions,
+  accounts,
+  {
+    search,
+    type,
+    categoryId,
+    accountId,
+    fromDate,
+    toDate,
+    minAmountPaisa,
+    maxAmountPaisa,
+    sort,
+  },
+  categories
+);
+
 
       return { rows, error: "" };
     } catch (error) {
@@ -125,19 +129,22 @@ export default function TransactionsPage() {
             : "Invalid filter.",
       };
     }
-  }, [
-    transactions,
-    accounts,
-    search,
-    type,
-    categoryId,
-    accountId,
-    fromDate,
-    toDate,
-    minAmount,
-    maxAmount,
-    sort,
-  ]);
+
+}, [
+  transactions,
+  accounts,
+  categories,
+  search,
+  type,
+  categoryId,
+  accountId,
+  fromDate,
+  toDate,
+  minAmount,
+  maxAmount,
+  sort,
+]);
+
 
   const totals = calculateTotals(result.rows);
 
@@ -256,7 +263,9 @@ export default function TransactionsPage() {
                 className={controlClass}
               >
                 <option value="">All Categories</option>
-                {categories.map((category) => (
+                
+{visibleCategories.map((category) => (
+
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -478,7 +487,7 @@ export default function TransactionsPage() {
                     )}
 
                     <div className="min-w-0">
-                      <p className="break-words text-sm font-medium">
+                      <p className="wrap-break-word text-sm font-medium">
                         {title}
                       </p>
 

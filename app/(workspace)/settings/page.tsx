@@ -1,29 +1,18 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeading } from "@/components/layout/page-heading";
+import { CategoryManager } from "@/components/categories/category-manager";
 
 const preferences = [
-  {
-    title: "Currency",
-    value: "Nepalese Rupee (NPR)",
-  },
-  {
-    title: "Language",
-    value: "English",
-  },
-  {
-    title: "Date Format",
-    value: "DD MMM YYYY",
-  },
-  {
-    title: "Appearance",
-    value: "Light / Dark Mode",
-  },
+  { title: "Currency", value: "Nepalese Rupee (NPR)" },
+  { title: "Language", value: "English" },
+  { title: "Date Format", value: "DD MMM YYYY" },
+  { title: "Appearance", value: "Light / Dark Mode" },
 ];
 
 export default function SettingsPage() {
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeading
         title="Settings"
         description="Manage your application preferences"
@@ -31,7 +20,7 @@ export default function SettingsPage() {
 
       <Card className="rounded-2xl shadow-sm">
         <CardContent className="p-6">
-          <h2 className="mb-6 text-lg font-semibold">
+          <h2 className="mb-5 text-lg font-semibold">
             General Preferences
           </h2>
 
@@ -39,25 +28,21 @@ export default function SettingsPage() {
             {preferences.map((item) => (
               <div
                 key={item.title}
-                className="flex flex-wrap items-center justify-between gap-3 py-5"
+                className="flex flex-wrap justify-between gap-3 py-4"
               >
-                <p className="text-sm font-medium">
+                <span className="text-sm font-medium">
                   {item.title}
-                </p>
-
+                </span>
                 <span className="text-sm text-slate-500">
                   {item.value}
                 </span>
               </div>
             ))}
           </div>
-
-          <p className="mt-5 text-xs text-slate-400">
-            Preferences are currently for display only.
-            Editable settings will be added later.
-          </p>
         </CardContent>
       </Card>
+
+      <CategoryManager />
     </div>
   );
 }

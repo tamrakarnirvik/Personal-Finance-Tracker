@@ -4,8 +4,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 
 import { formatNpr } from "@/lib/finance";
-import { getCategoryName } from "@/lib/transaction-categories";
-
+import { useCategories } from "@/components/categories/category-provider";
 import {
   useTransactions,
   type EntryTransaction,
@@ -13,6 +12,9 @@ import {
 
 export function RecentTransactions() {
   const { transactions } = useTransactions();
+
+const { getCategoryName } = useCategories();
+
 
   const recent = transactions
     .filter(
