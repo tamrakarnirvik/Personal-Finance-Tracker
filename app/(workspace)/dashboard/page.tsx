@@ -1,6 +1,8 @@
 
 "use client";
 
+import { CategoryBreakdown } from "@/components/dashboard/category-breakdown";
+
 import { motion } from "motion/react";
 import {
   Wallet,
@@ -105,7 +107,12 @@ const { transactions, accounts } = useTransactions();
       </div>
 
       {/* Chart is still sample data */}
-      <SpendingChart />
+      
+<div className="grid gap-6 xl:grid-cols-2">
+  <SpendingChart />
+  <CategoryBreakdown />
+</div>
+
 
       {/* Live transaction list */}
       <RecentTransactions />
