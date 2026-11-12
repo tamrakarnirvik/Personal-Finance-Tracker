@@ -1,6 +1,12 @@
 "use client";
 
 import {
+  assertPositiveAmountPaisa,
+  assertTransactionDate,
+  assertTransferAllowed,
+} from "@/lib/finance-integrity";
+
+import {
   createContext,
   useContext,
   useEffect,
@@ -10,7 +16,6 @@ import {
 } from "react";
 
 import type { FinanceAccount, FinanceTransaction } from "@/types/finance";
-import { calculateAccountBalance } from "@/lib/finance";
 
 export type EntryTransaction = Extract<
   FinanceTransaction,
@@ -180,6 +185,10 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
   }, [accounts, isLoaded, storageError]);
 
   function saveEntry(draft: EntryDraft, id?: string) {
+
+assertPositiveAmountPaisa(draft.amountPaisa);
+assertTransactionDate(draft.occurredOn);
+
     if (!accounts.some((account) => account.id === draft.accountId)) {
       throw new Error("Please select an existing account.");
     }
@@ -223,24 +232,26 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     }]);
   }
 
-  function addTransfer(draft: TransferDraft) {
-    const source = accounts.find((account) => account.id === draft.fromAccountId);
-    const destination = accounts.find((account) => account.id === draft.toAccountId);
-    if (!source || !destination) {
-      throw new Error("Select valid source and destination accounts.");
-    }
-    if (source.id === destination.id) {
-      throw new Error("Choose two different accounts.");
-    }
-    if (!Number.isSafeInteger(draft.amountPaisa) || draft.amountPaisa <= 0) {
-      throw new Error("Invalid transfer amount.");
-    }
-    const available = calculateAccountBalance(source, transactions);
-    if (draft.amountPaisa > available) {
-      throw new Error("Insufficient balance in the source account.");
-    }
-    setTransactions((previous) => [{ ...draft, id: crypto.randomUUID() }, ...previous]);
-  }
+  
+function addTransfer(draft: TransferDraft) {
+  // Validate accounts, amount, date and dated balances.
+  assertTransferAllowed(
+    accounts,
+    transactions,
+    draft
+  );
+
+  const newTransfer: FinanceTransaction = {
+    ...draft,
+    id: crypto.randomUUID(),
+  };
+
+  setTransactions((previous) => [
+    newTransfer,
+    ...previous,
+  ]);
+}
+
 
   if (storageError) {
     return <div role="alert" className="p-8 text-sm text-red-600">{storageError}</div>;

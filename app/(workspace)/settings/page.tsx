@@ -2,6 +2,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeading } from "@/components/layout/page-heading";
 import { CategoryManager } from "@/components/categories/category-manager";
+import { DataSafety } from "@/components/settings/data-safety";
+
 
 const preferences = [
   { title: "Currency", value: "Nepalese Rupee (NPR)" },
@@ -43,6 +45,9 @@ export default function SettingsPage() {
       </Card>
 
       <CategoryManager />
+
+<DataSafety />
+
     </div>
   );
 }

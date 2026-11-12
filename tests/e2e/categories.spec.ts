@@ -9,9 +9,18 @@ test("create, use, and rename a custom category", async ({
 
   await page.getByLabel("Category name").fill("Education");
 
-  await page.getByRole("button", {
+  
+const categoryForm = page.locator("form").filter({
+  has: page.getByLabel("Category name", { exact: true }),
+});
+
+await categoryForm
+  .getByRole("button", {
     name: "Save category",
-  }).click();
+    exact: true,
+  })
+  .click();
+
 
   await expect(
     page.getByText("Education", { exact: true })

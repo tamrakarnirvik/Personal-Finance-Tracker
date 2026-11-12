@@ -144,14 +144,10 @@ export function CategoryManager() {
 
           <div className="flex gap-2">
             <Button type="submit">
-              {editingId ? (
-                <Pencil size={16} />
-              ) : (
-                <Plus size={16} />
-              )}
+  {editingId ? <Pencil size={16} /> : <Plus size={16} />}
 
-              {editingId ? "Save changes" : "Save category"}
-            </Button>
+  {editingId ? "Save changes" : "Save category"}
+</Button>
 
             {editingId && (
               <Button
