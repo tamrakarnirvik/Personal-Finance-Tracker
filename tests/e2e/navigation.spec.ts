@@ -64,9 +64,17 @@ test("mobile More menu opens Analytics", async ({
     .getByRole("button", { name: "More" })
     .click();
 
-  await page.getByRole("link", {
+  
+await page
+  .getByRole("navigation", {
+    name: "Mobile navigation",
+  })
+  .getByRole("link", {
     name: "Analytics",
-  }).click();
+    exact: true,
+  })
+  .click();
+
 
   await expect(page).toHaveURL(/\/analytics$/);
 });
