@@ -17,6 +17,12 @@ export default function WorkspaceLayout({
     <TransactionProvider>
       <CategoryProvider>
       <div className="min-h-dvh overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
+        <a
+    href="#main-content"
+    className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-xl focus:border focus:border-border focus:bg-card focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-ring"
+  >
+    Skip to main content
+  </a>
         <AppSidebar />
 
         <div className="min-w-0 lg:pl-64">

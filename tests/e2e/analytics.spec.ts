@@ -62,9 +62,15 @@ test("a recorded expense appears in live analytics", async ({
   ).toBeVisible();
 
   // 9. Verify expense category is displayed
-  await expect(
-    page.getByText("Food & Drinks", {
+  
+await expect(
+  page
+    .getByRole("region", {
+      name: "Analytics insights",
+    })
+    .getByText("Food & Drinks", {
       exact: true,
     })
-  ).toBeVisible();
+).toBeVisible();
+
 });
