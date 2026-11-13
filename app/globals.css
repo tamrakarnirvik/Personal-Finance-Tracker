@@ -341,3 +341,203 @@ html {
     transform: none !important;
   }
 }
+
+
+
+/* ============================================
+   EXPENSE TRACKER — FINANCIAL WORKSPACE
+   Transactions & Accounts detailed styling
+   ============================================ */
+
+/* Page structure */
+.finance-refresh {
+  --finance-radius: 1rem;
+}
+
+.finance-refresh .clean-panel,
+.finance-refresh [data-slot="card"] {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: 1.125rem;
+  box-shadow: 0 2px 12px rgb(17 24 39 / 3%);
+}
+
+/* Section headings */
+.finance-refresh h1 {
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+.finance-refresh h2 {
+  letter-spacing: -0.025em;
+}
+
+/* Search, text, amount, and date fields */
+.finance-refresh input:not(
+  [type="checkbox"],
+  [type="radio"],
+  [type="range"]
+),
+.finance-refresh select,
+.finance-refresh textarea {
+  min-height: 2.75rem;
+  border: 1px solid var(--input);
+  border-radius: 0.75rem;
+  background-color: var(--card);
+  color: var(--foreground);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.finance-refresh input:focus-visible,
+.finance-refresh select:focus-visible,
+.finance-refresh textarea:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+/* Labels */
+.finance-refresh label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* Button refinements without changing variants */
+.finance-refresh button {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+/* Tables */
+.finance-refresh table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.finance-refresh thead {
+  background-color: var(--muted);
+}
+
+.finance-refresh table th {
+  padding: 0.875rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.finance-refresh table td {
+  padding: 1rem;
+  font-size: 0.8125rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.finance-refresh tbody tr {
+  transition: background-color 150ms ease;
+}
+
+.finance-refresh tbody tr:hover {
+  background-color: var(--muted);
+}
+
+.finance-refresh tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Account card hover state */
+.finance-account-card {
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+@media (hover: hover) {
+  .finance-account-card:hover {
+    border-color: var(--ring);
+    box-shadow: 0 6px 22px rgb(17 24 39 / 6%);
+    transform: translateY(-1px);
+  }
+}
+
+/* Responsive refinements */
+@media (max-width: 639px) {
+  .finance-refresh table th,
+  .finance-refresh table td {
+    padding: 0.75rem;
+  }
+
+  .finance-refresh h1 {
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .finance-refresh button,
+  .finance-refresh tbody tr,
+  .finance-account-card {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+
+
+/* ============================================
+   CLEAN MINIMAL — FINANCIAL DIALOGS
+   ============================================ */
+
+.finance-dialog {
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 24px 72px rgb(0 0 0 / 12%);
+}
+
+.finance-dialog label {
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--foreground);
+}
+
+.finance-dialog input:not(
+  [type="checkbox"],
+  [type="radio"]
+),
+.finance-dialog select,
+.finance-dialog textarea {
+  min-height: 2.75rem;
+  border-radius: 0.75rem;
+  border-color: var(--input);
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.finance-dialog input:focus-visible,
+.finance-dialog select:focus-visible,
+.finance-dialog textarea:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.finance-dialog [role="alert"] {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 639px) {
+  .finance-dialog {
+    padding: 1.125rem;
+  }
+}
+

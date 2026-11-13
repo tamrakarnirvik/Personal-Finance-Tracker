@@ -71,7 +71,7 @@ export function AddAccountDialog() {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="finance-dialog sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Add New Account</DialogTitle>
             <DialogDescription>

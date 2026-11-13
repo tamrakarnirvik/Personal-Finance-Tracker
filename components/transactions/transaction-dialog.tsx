@@ -287,7 +287,9 @@ export function TransactionDialog({
         open={open}
         onOpenChange={setOpen}
       >
-        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+        
+<DialogContent className="finance-dialog max-h-[90dvh] overflow-y-auto sm:max-w-lg">
+
           {/* Dialog heading */}
           <DialogHeader>
             <DialogTitle>

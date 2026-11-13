@@ -19,9 +19,17 @@ test("create an account and transfer funds", async ({ page }) => {
     name: "Save Account",
   }).click();
 
-  await expect(
-    page.getByText("eSewa Test", { exact: true })
-  ).toBeVisible();
+  
+await expect(
+  page
+    .getByRole("region", {
+      name: "Account balance overview",
+    })
+    .getByText("eSewa Test", {
+      exact: true,
+    })
+).toBeVisible();
+
 
   // Transfer from cash to the new account.
   await page.getByRole("button", {
