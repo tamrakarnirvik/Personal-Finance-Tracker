@@ -8,6 +8,9 @@ import { PageTransition } from "@/components/layout/page-transition";
 
 import { TransactionProvider } from "@/components/transactions/transaction-provider";
 
+
+import { RecurringAutomationHost } from "@/components/recurring/recurring-automation-host";
+
 export default function WorkspaceLayout({
   children,
 }: {
@@ -41,6 +44,10 @@ export default function WorkspaceLayout({
         <MobileNav />
       </div>
       </CategoryProvider>
+      
+<RecurringAutomationHost />
+
     </TransactionProvider>
+    
   );
 }

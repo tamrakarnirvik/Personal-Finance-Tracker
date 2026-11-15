@@ -38,6 +38,10 @@ import {
 } from "@/components/dashboard/category-breakdown";
 
 import {
+  RecurringDashboardWidget,
+} from "@/components/recurring/recurring-dashboard-widget";
+
+import {
   calculateAccountBalance,
   calculateTotals,
   formatNpr,
@@ -51,11 +55,14 @@ import type {
   FinanceTransaction,
 } from "@/types/finance";
 
-/* ==========================================
-   HELPER COMPONENTS
-   ========================================== */
+// ==========================================
+// FINANCIAL METRIC CARD
+// ==========================================
 
-type MetricTone = "income" | "expense" | "neutral";
+type MetricTone =
+  | "income"
+  | "expense"
+  | "neutral";
 
 interface MetricCardProps {
   title: string;
@@ -74,13 +81,18 @@ function MetricCard({
 }: MetricCardProps) {
   const tones = {
     income: {
-      icon: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
-      amount: "text-emerald-700 dark:text-emerald-300",
+      icon:
+        "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
+      amount:
+        "text-emerald-700 dark:text-emerald-300",
     },
+
     expense: {
-      icon: "bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300",
+      icon:
+        "bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300",
       amount: "text-foreground",
     },
+
     neutral: {
       icon: "bg-muted text-foreground",
       amount: "text-foreground",
@@ -99,7 +111,10 @@ function MetricCard({
         <div
           className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${colors.icon}`}
         >
-          <Icon size={19} strokeWidth={1.8} />
+          <Icon
+            size={19}
+            strokeWidth={1.8}
+          />
         </div>
       </div>
 
@@ -115,6 +130,10 @@ function MetricCard({
     </section>
   );
 }
+
+// ==========================================
+// SECTION HEADING
+// ==========================================
 
 function SectionHeading({
   title,
@@ -154,6 +173,10 @@ function SectionHeading({
   );
 }
 
+// ==========================================
+// RECENT TRANSACTION ROW
+// ==========================================
+
 function RecentTransactionRow({
   transaction,
   accountNames,
@@ -163,37 +186,47 @@ function RecentTransactionRow({
   accountNames: Map<string, string>;
   getCategoryName: (id: string) => string;
 }) {
-  const isTransfer = transaction.type === "transfer";
-  const isIncome = transaction.type === "income";
+  const isTransfer =
+    transaction.type === "transfer";
+
+  const isIncome =
+    transaction.type === "income";
 
   const title =
     transaction.note?.trim() ||
     (isTransfer
       ? "Account transfer"
-      : getCategoryName(transaction.categoryId));
+      : getCategoryName(
+          transaction.categoryId
+        ));
 
   let subtitle = "";
 
   if (isTransfer) {
     const from =
-      accountNames.get(transaction.fromAccountId) ??
-      "Unknown account";
+      accountNames.get(
+        transaction.fromAccountId
+      ) ?? "Unknown account";
 
     const to =
-      accountNames.get(transaction.toAccountId) ??
-      "Unknown account";
+      accountNames.get(
+        transaction.toAccountId
+      ) ?? "Unknown account";
 
     subtitle = `${from} → ${to}`;
   } else {
-    const categoryName = getCategoryName(
-      transaction.categoryId
-    );
+    const categoryName =
+      getCategoryName(
+        transaction.categoryId
+      );
 
     const accountName =
-      accountNames.get(transaction.accountId) ??
-      "Unknown account";
+      accountNames.get(
+        transaction.accountId
+      ) ?? "Unknown account";
 
-    subtitle = `${categoryName} · ${accountName}`;
+    subtitle =
+      `${categoryName} · ${accountName}`;
   }
 
   const Icon = isTransfer
@@ -224,6 +257,7 @@ function RecentTransactionRow({
 
   return (
     <div className="flex min-w-0 items-center gap-3 border-b border-border/70 py-4 last:border-0">
+      {/* Transaction icon */}
       <div
         className={[
           "flex size-11 shrink-0 items-center",
@@ -233,9 +267,13 @@ function RecentTransactionRow({
             : "bg-muted text-muted-foreground",
         ].join(" ")}
       >
-        <Icon size={19} strokeWidth={1.8} />
+        <Icon
+          size={19}
+          strokeWidth={1.8}
+        />
       </div>
 
+      {/* Transaction information */}
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-semibold text-foreground sm:text-sm">
           {title}
@@ -246,12 +284,15 @@ function RecentTransactionRow({
         </p>
       </div>
 
+      {/* Transaction amount and date */}
       <div className="shrink-0 text-right">
         <p
           className={`text-[13px] font-semibold tabular-nums sm:text-sm ${amountColor}`}
         >
           {amountPrefix}
-          {formatNpr(transaction.amountPaisa)}
+          {formatNpr(
+            transaction.amountPaisa
+          )}
         </p>
 
         <p className="mt-1 text-[11px] text-muted-foreground">
@@ -262,84 +303,134 @@ function RecentTransactionRow({
   );
 }
 
-/* ==========================================
-   MAIN DASHBOARD
-   ========================================== */
+// ==========================================
+// MAIN DASHBOARD PAGE
+// ==========================================
 
 export default function DashboardPage() {
-  const { accounts, transactions } = useTransactions();
+  const {
+    accounts,
+    transactions,
+  } = useTransactions();
 
-  const { getCategoryName } = useCategories();
+  const {
+    getCategoryName,
+  } = useCategories();
+
+  // ========================================
+  // CURRENT MONTH
+  // ========================================
 
   const [monthKey] = useState(() =>
     getMonthKey(new Date())
   );
 
-  // Financial balance across all accounts.
+  // ========================================
+  // TOTAL BALANCE
+  // ========================================
+
   const totalBalancePaisa = useMemo(
     () =>
       accounts.reduce(
         (sum, account) =>
           sum +
-          calculateAccountBalance(account, transactions),
+          calculateAccountBalance(
+            account,
+            transactions
+          ),
         0
       ),
     [accounts, transactions]
   );
 
-  // Monthly income and expense totals.
+  // ========================================
+  // MONTHLY TRANSACTIONS
+  // ========================================
+
   const monthlyTransactions = useMemo(
     () =>
       transactions.filter(
         (transaction) =>
-          transaction.occurredOn.startsWith(monthKey)
+          transaction.occurredOn.startsWith(
+            monthKey
+          )
       ),
     [transactions, monthKey]
   );
 
+  // ========================================
+  // MONTHLY TOTALS
+  // ========================================
+
   const monthlyTotals = useMemo(
-    () => calculateTotals(monthlyTransactions),
+    () =>
+      calculateTotals(
+        monthlyTransactions
+      ),
     [monthlyTransactions]
   );
 
-  // Most recent transactions.
+  // ========================================
+  // RECENT TRANSACTIONS
+  // ========================================
+
   const recentTransactions = useMemo(
     () =>
       [...transactions]
         .sort(
           (a, b) =>
-            b.occurredOn.localeCompare(a.occurredOn) ||
+            b.occurredOn.localeCompare(
+              a.occurredOn
+            ) ||
             b.id.localeCompare(a.id)
         )
         .slice(0, 5),
     [transactions]
   );
 
+  // ========================================
+  // ACCOUNT NAME LOOKUP
+  // ========================================
+
   const accountNames = useMemo(
     () =>
       new Map(
-        accounts.map((account) => [
-          account.id,
-          account.name,
-        ])
+        accounts.map(
+          (account) => [
+            account.id,
+            account.name,
+          ]
+        )
       ),
     [accounts]
   );
+
+  // ========================================
+  // FORMATTED MONTH LABEL
+  // ========================================
 
   const monthLabel = useMemo(() => {
     const [year, month] = monthKey
       .split("-")
       .map(Number);
 
-    return new Date(year, month - 1, 1)
-      .toLocaleDateString("en-GB", {
-        month: "long",
-        year: "numeric",
-      });
+    return new Date(
+      year,
+      month - 1,
+      1
+    ).toLocaleDateString("en-GB", {
+      month: "long",
+      year: "numeric",
+    });
   }, [monthKey]);
+
+  // ========================================
+  // DASHBOARD USER INTERFACE
+  // ========================================
 
   return (
     <div className="space-y-8 pb-6 sm:space-y-10">
+
       {/* ======================================
           PAGE HEADING
           ====================================== */}
@@ -352,8 +443,8 @@ export default function DashboardPage() {
           </p>
 
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[30px]">
-  Dashboard
-</h1>
+            Dashboard
+          </h1>
 
           <p className="mt-2 text-[13px] text-muted-foreground sm:text-sm">
             A clear picture of your money, all in one place.
@@ -371,7 +462,7 @@ export default function DashboardPage() {
         className="relative overflow-hidden rounded-[22px] bg-[#146B55] p-6 text-white shadow-sm sm:p-8"
         aria-label="Total account balance"
       >
-        {/* Soft decorative shapes */}
+        {/* Decorative background shapes */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-12 -top-24 size-64 rounded-full border border-white/10"
@@ -383,6 +474,8 @@ export default function DashboardPage() {
         />
 
         <div className="relative z-10">
+
+          {/* Balance heading */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="flex items-center gap-2 text-[13px] font-medium text-white/80">
               <Wallet size={17} />
@@ -394,18 +487,26 @@ export default function DashboardPage() {
             </span>
           </div>
 
+          {/* Actual balance */}
           <p
             data-testid="dashboard-total-balance"
             className="mt-5 wrap-break-word text-[32px] font-semibold tracking-tight tabular-nums sm:text-[42px]"
           >
-            {formatNpr(totalBalancePaisa)}
+            {formatNpr(
+              totalBalancePaisa
+            )}
           </p>
 
+          {/* Account count */}
           <p className="mt-2 text-xs text-white/70 sm:text-sm">
-            Combined balance across {accounts.length}{" "}
-            {accounts.length === 1 ? "account" : "accounts"}
+            Combined balance across{" "}
+            {accounts.length}{" "}
+            {accounts.length === 1
+              ? "account"
+              : "accounts"}
           </p>
 
+          {/* Accounts link */}
           <div className="mt-8 border-t border-white/20 pt-5">
             <Link
               href="/accounts"
@@ -423,30 +524,46 @@ export default function DashboardPage() {
           ====================================== */}
 
       <div className="grid gap-4 md:grid-cols-3">
+
+        {/* Monthly income */}
         <MetricCard
           title="Monthly income"
-          amountPaisa={monthlyTotals.incomePaisa}
+          amountPaisa={
+            monthlyTotals.incomePaisa
+          }
           subtitle={`Money received in ${monthLabel}`}
           icon={ArrowDownLeft}
           tone="income"
         />
 
+        {/* Monthly expenses */}
         <MetricCard
           title="Monthly expenses"
-          amountPaisa={monthlyTotals.expensePaisa}
+          amountPaisa={
+            monthlyTotals.expensePaisa
+          }
           subtitle={`Money spent in ${monthLabel}`}
           icon={ArrowUpRight}
           tone="expense"
         />
 
+        {/* Net cash flow */}
         <MetricCard
           title="Net cash flow"
-          amountPaisa={monthlyTotals.netPaisa}
+          amountPaisa={
+            monthlyTotals.netPaisa
+          }
           subtitle="Income minus expenses"
           icon={ArrowLeftRight}
           tone="neutral"
         />
       </div>
+
+      {/* ======================================
+          NEW: RECURRING PAYMENTS OVERVIEW
+          ====================================== */}
+
+      <RecurringDashboardWidget />
 
       {/* ======================================
           LIVE FINANCIAL CHARTS
@@ -461,22 +578,31 @@ export default function DashboardPage() {
         />
 
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
+
+          {/* Spending chart */}
           <div className="min-w-0">
             <SpendingChart months={6} />
           </div>
 
+          {/* Category breakdown */}
           <div className="min-w-0">
-            <CategoryBreakdown monthKey={monthKey} />
+            <CategoryBreakdown
+              monthKey={monthKey}
+            />
           </div>
         </div>
       </section>
 
       {/* ======================================
-          TRANSACTIONS + ACCOUNTS
+          RECENT TRANSACTIONS AND ACCOUNTS
           ====================================== */}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-        {/* Recent transactions */}
+
+        {/* ==================================
+            RECENT TRANSACTIONS
+            ================================== */}
+
         <section className="clean-panel min-w-0 p-5 sm:p-6">
           <SectionHeading
             title="Recent transactions"
@@ -487,16 +613,19 @@ export default function DashboardPage() {
 
           <div className="mt-4">
             {recentTransactions.length > 0 ? (
-              recentTransactions.map((transaction) => (
-                <RecentTransactionRow
-                  key={transaction.id}
-                  transaction={transaction}
-                  accountNames={accountNames}
-                  getCategoryName={getCategoryName}
-                />
-              ))
+              recentTransactions.map(
+                (transaction) => (
+                  <RecentTransactionRow
+                    key={transaction.id}
+                    transaction={transaction}
+                    accountNames={accountNames}
+                    getCategoryName={getCategoryName}
+                  />
+                )
+              )
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
+
                 <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-muted">
                   <ReceiptText
                     size={21}
@@ -509,15 +638,18 @@ export default function DashboardPage() {
                 </p>
 
                 <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted-foreground">
-                  Your latest income, expenses and transfers
-                  will appear here.
+                  Your latest income, expenses
+                  and transfers will appear here.
                 </p>
               </div>
             )}
           </div>
         </section>
 
-        {/* Accounts overview */}
+        {/* ==================================
+            ACCOUNTS OVERVIEW
+            ================================== */}
+
         <section className="clean-panel min-w-0 p-5 sm:p-6">
           <SectionHeading
             title="Your accounts"
@@ -529,20 +661,24 @@ export default function DashboardPage() {
           <div className="mt-4 divide-y divide-border/70">
             {accounts.length > 0 ? (
               accounts.map((account) => {
-                const balance = calculateAccountBalance(
-                  account,
-                  transactions
-                );
+                const balance =
+                  calculateAccountBalance(
+                    account,
+                    transactions
+                  );
 
                 return (
                   <div
                     key={account.id}
                     className="flex items-center gap-3 py-4 first:pt-1"
                   >
+
+                    {/* Account icon */}
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
                       <CreditCard size={18} />
                     </div>
 
+                    {/* Account information */}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-semibold">
                         {account.name}
@@ -553,6 +689,7 @@ export default function DashboardPage() {
                       </p>
                     </div>
 
+                    {/* Account balance */}
                     <p
                       className={`shrink-0 text-right text-[13px] font-semibold tabular-nums ${
                         balance < 0
@@ -572,6 +709,7 @@ export default function DashboardPage() {
             )}
           </div>
 
+          {/* Manage accounts link */}
           <Link
             href="/accounts"
             className="mt-4 flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted"

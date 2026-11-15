@@ -15,7 +15,9 @@ import {
   ChevronUp,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import {
+  Button,
+} from "@/components/ui/button";
 
 import {
   useCategories,
@@ -25,7 +27,13 @@ import {
   useTransactions,
 } from "@/components/transactions/transaction-provider";
 
-import { formatNpr } from "@/lib/finance";
+import {
+  formatNpr,
+} from "@/lib/finance";
+
+import {
+  useRecurringAutomationStore,
+} from "@/components/recurring/recurring-automation-store";
 
 import {
   RECURRING_CHANGE_EVENT,
@@ -45,7 +53,7 @@ const STORAGE_UNAVAILABLE =
   "__recurring_storage_unavailable__";
 
 // ==========================================
-// STORAGE SUBSCRIPTION
+// SUBSCRIBE TO SCHEDULE CHANGES
 // ==========================================
 
 function subscribeToSchedules(
@@ -91,7 +99,7 @@ function getServerSchedulesSnapshot():
 }
 
 // ==========================================
-// READ SCHEDULES
+// LOAD SAVED SCHEDULES
 // ==========================================
 
 function readSchedules(
@@ -121,9 +129,7 @@ function readSchedules(
     const value: unknown =
       JSON.parse(snapshot);
 
-    if (
-      !isRecurringScheduleList(value)
-    ) {
+    if (!isRecurringScheduleList(value)) {
       throw new Error("Invalid data");
     }
 
@@ -135,13 +141,13 @@ function readSchedules(
     return {
       schedules: [],
       error:
-        "Recurring schedule data could not be read. Posting from reminders is disabled.",
+        "Recurring schedule data could not be read. No entries can be posted from reminders.",
     };
   }
 }
 
 // ==========================================
-// REFRESH LOCAL DATE
+// CHECK DATE WHEN USER RETURNS
 // ==========================================
 
 function subscribeToToday(
@@ -179,7 +185,7 @@ function getServerTodaySnapshot() {
 }
 
 // ==========================================
-// STATUS STYLING
+// STATUS STYLES
 // ==========================================
 
 const statusStyles = {
@@ -194,7 +200,7 @@ const statusStyles = {
 } as const;
 
 // ==========================================
-// MAIN COMPONENT
+// REMINDER CENTER
 // ==========================================
 
 export function RecurringReminderCenter() {
@@ -208,6 +214,10 @@ export function RecurringReminderCenter() {
     categories,
     getCategoryName,
   } = useCategories();
+
+  const {
+    settings,
+  } = useRecurringAutomationStore();
 
   const raw = useSyncExternalStore(
     subscribeToSchedules,
@@ -229,14 +239,20 @@ export function RecurringReminderCenter() {
     [raw]
   );
 
-  const [showAll, setShowAll] =
-    useState(false);
+  const [
+    showAll,
+    setShowAll,
+  ] = useState(false);
 
-  const [actionError, setActionError] =
-    useState("");
+  const [
+    actionError,
+    setActionError,
+  ] = useState("");
 
-  const [notice, setNotice] =
-    useState("");
+  const [
+    notice,
+    setNotice,
+  ] = useState("");
 
   // ========================================
   // CALCULATE REMINDERS
@@ -250,10 +266,16 @@ export function RecurringReminderCenter() {
             transactions,
             today,
             monthsBack: 3,
-            daysAhead: 30,
+            daysAhead:
+              settings.reminderDaysAhead,
           })
         : [],
-    [schedules, transactions, today]
+    [
+      schedules,
+      transactions,
+      today,
+      settings.reminderDaysAhead,
+    ]
   );
 
   const counts = useMemo(
@@ -281,21 +303,17 @@ export function RecurringReminderCenter() {
     : reminders.slice(0, 6);
 
   const accountById = new Map(
-    accounts.map(
-      (account) => [
-        account.id,
-        account,
-      ]
-    )
+    accounts.map((account) => [
+      account.id,
+      account,
+    ])
   );
 
   const categoryById = new Map(
-    categories.map(
-      (category) => [
-        category.id,
-        category,
-      ]
-    )
+    categories.map((category) => [
+      category.id,
+      category,
+    ])
   );
 
   // ========================================
@@ -315,26 +333,26 @@ export function RecurringReminderCenter() {
       return;
     }
 
-    const schedule = reminder.schedule;
+    const schedule =
+      reminder.schedule;
 
-    const referenceValid =
-      accountById.has(
-        schedule.accountId
-      ) &&
+    if (
+      !accountById.has(schedule.accountId) ||
       categoryById.get(
         schedule.categoryId
-      )?.type === schedule.type;
-
-    if (!referenceValid) {
+      )?.type !== schedule.type
+    ) {
       setActionError(
-        `Cannot post "${schedule.name}": its account or category is missing.`
+        `Cannot post "${schedule.name}": its account or category is missing. Edit the schedule first.`
       );
+
       return;
     }
 
     if (
       transactions.some(
-        (item) => item.id === reminder.id
+        (item) =>
+          item.id === reminder.id
       )
     ) {
       return;
@@ -346,7 +364,9 @@ export function RecurringReminderCenter() {
       )}) dated ${reminder.occurredOn}?`
     );
 
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
       const common = {
@@ -375,7 +395,7 @@ export function RecurringReminderCenter() {
       );
 
       setNotice(
-        `Posted ${schedule.name} for ${reminder.occurredOn}.`
+        `Posted ${schedule.name} for ${reminder.monthKey}.`
       );
     } catch (error) {
       setActionError(
@@ -387,7 +407,7 @@ export function RecurringReminderCenter() {
   }
 
   // ========================================
-  // UI
+  // USER INTERFACE
   // ========================================
 
   return (
@@ -395,6 +415,8 @@ export function RecurringReminderCenter() {
       aria-label="Recurring payment reminders"
       className="clean-panel space-y-5 p-5 sm:p-6"
     >
+      {/* HEADER */}
+
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
@@ -411,7 +433,8 @@ export function RecurringReminderCenter() {
           <p className="mt-2 text-sm text-muted-foreground">
             Unposted weekly, monthly and yearly
             occurrences from the last three
-            months and next 30 days.
+            months and next{" "}
+            {settings.reminderDaysAhead} days.
           </p>
         </div>
 
@@ -422,7 +445,7 @@ export function RecurringReminderCenter() {
         </p>
       </div>
 
-      {/* SUMMARY */}
+      {/* STATUS COUNTERS */}
 
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {[
@@ -469,15 +492,17 @@ export function RecurringReminderCenter() {
             size={18}
             className="text-primary"
           />
-          No unposted recurring entries
+
+          No unpaid recurring entries
           in this reminder window.
         </div>
       ) : (
         <div className="space-y-3">
           {visibleReminders.map(
             (reminder) => {
-              const schedule =
-                reminder.schedule;
+              const {
+                schedule,
+              } = reminder;
 
               const referenceValid =
                 accountById.has(
@@ -502,6 +527,8 @@ export function RecurringReminderCenter() {
                   key={reminder.id}
                   className="rounded-xl border border-border p-4"
                 >
+                  {/* INFORMATION */}
+
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-foreground">
@@ -511,9 +538,13 @@ export function RecurringReminderCenter() {
                       <p className="mt-1 text-xs text-muted-foreground">
                         {reminder.occurredOn}
                         {" · "}
-                        {getRecurringFrequency(schedule)}
+                        {getRecurringFrequency(
+                          schedule
+                        )}
                         {" · "}
-                        {getCategoryName(schedule.categoryId)}
+                        {getCategoryName(
+                          schedule.categoryId
+                        )}
                         {" · "}
                         {schedule.type}
                       </p>
@@ -535,6 +566,8 @@ export function RecurringReminderCenter() {
                       {label}
                     </span>
                   </div>
+
+                  {/* ACCOUNT AND POST ACTION */}
 
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                     <p className="text-xs text-muted-foreground">
@@ -563,7 +596,9 @@ export function RecurringReminderCenter() {
                         !referenceValid
                       }
                       onClick={() =>
-                        postReminder(reminder)
+                        postReminder(
+                          reminder
+                        )
                       }
                     >
                       {reminder.status ===
@@ -576,6 +611,8 @@ export function RecurringReminderCenter() {
               );
             }
           )}
+
+          {/* SHOW ALL REMINDERS */}
 
           {reminders.length > 6 && (
             <Button
@@ -602,6 +639,8 @@ export function RecurringReminderCenter() {
         </div>
       )}
 
+      {/* OVERDUE WARNING */}
+
       {counts.overdue > 0 &&
         !storageError && (
           <p className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -612,10 +651,12 @@ export function RecurringReminderCenter() {
 
             An overdue reminder means no
             transaction with that recurring ID
-            was found. It does not prove a bill
-            was unpaid outside this app.
+            was found. It does not prove a
+            bill was unpaid outside this app.
           </p>
         )}
+
+      {/* MESSAGES */}
 
       {actionError && (
         <p
@@ -635,10 +676,14 @@ export function RecurringReminderCenter() {
         </p>
       )}
 
+      {/* FOOTER */}
+
       <p className="text-xs leading-relaxed text-muted-foreground">
-        Reminders come from locally saved
-        schedules and transactions. Nothing is
-        posted automatically. Paused schedules
+        Reminders are calculated from locally
+        saved schedules and transactions.
+        This panel posts only on request.
+        Optional due-today automatic posting
+        is controlled above. Paused schedules
         are excluded.
       </p>
     </section>

@@ -4,6 +4,10 @@ import {
 } from "@/components/layout/page-heading";
 
 import {
+  RecurringAutomationSettings,
+} from "@/components/recurring/recurring-automation-settings";
+
+import {
   RecurringReminderCenter,
 } from "@/components/recurring/recurring-reminder-center";
 
@@ -16,11 +20,16 @@ export default function RecurringPage() {
     <div className="space-y-7">
       <PageHeading
         title="Recurring Transactions"
-        description="Manage monthly income, expenses, and upcoming payment reminders"
+        description="Manage recurring income, expenses and in-app reminders"
       />
 
+      {/* NEW AUTOMATION PREFERENCES */}
+      <RecurringAutomationSettings />
+
+      {/* UPCOMING AND OVERDUE REMINDERS */}
       <RecurringReminderCenter />
 
+      {/* EXISTING SCHEDULE MANAGER */}
       <RecurringManager />
     </div>
   );
