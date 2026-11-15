@@ -1,3 +1,4 @@
+
 import {
   Banknote,
   CalendarDays,
@@ -6,11 +7,34 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { PageHeading } from "@/components/layout/page-heading";
-import { CategoryManager } from "@/components/categories/category-manager";
-import { DataSafety } from "@/components/settings/data-safety";
-import { SettingsOverview } from "@/components/settings/settings-overview";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
+
+import {
+  PageHeading,
+} from "@/components/layout/page-heading";
+
+import {
+  CategoryManager,
+} from "@/components/categories/category-manager";
+
+import {
+  DataSafety,
+} from "@/components/settings/data-safety";
+
+import {
+  SettingsOverview,
+} from "@/components/settings/settings-overview";
+
+import {
+  CompleteBackupExport,
+} from "@/components/settings/complete-backup-export";
+
+import {
+  CompleteBackupRestore,
+} from "@/components/settings/complete-backup-restore";
 
 interface Preference {
   title: string;
@@ -18,12 +42,27 @@ interface Preference {
   icon: LucideIcon;
 }
 
-// These preferences are informational, as in the existing Settings page.
 const preferences: Preference[] = [
-  { title: "Currency", value: "Nepalese Rupee (NPR)", icon: Banknote },
-  { title: "Language", value: "English", icon: Languages },
-  { title: "Date Format", value: "DD MMM YYYY", icon: CalendarDays },
-  { title: "Appearance", value: "Light / Dark Mode", icon: SunMoon },
+  {
+    title: "Currency",
+    value: "Nepalese Rupee (NPR)",
+    icon: Banknote,
+  },
+  {
+    title: "Language",
+    value: "English",
+    icon: Languages,
+  },
+  {
+    title: "Date Format",
+    value: "DD MMM YYYY",
+    icon: CalendarDays,
+  },
+  {
+    title: "Appearance",
+    value: "Light / Dark Mode",
+    icon: SunMoon,
+  },
 ];
 
 export default function SettingsPage() {
@@ -34,17 +73,24 @@ export default function SettingsPage() {
         description="Manage your application preferences"
       />
 
-      {/* Live counts and data-storage information */}
+      {/* WORKSPACE OVERVIEW */}
+
       <SettingsOverview />
 
-      {/* Existing preferences, with updated presentation only */}
-      <section aria-label="General preferences" className="space-y-4">
+      {/* GENERAL PREFERENCES */}
+
+      <section
+        aria-label="General preferences"
+        className="space-y-4"
+      >
         <div>
           <h2 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
             Personal preferences
           </h2>
+
           <p className="mt-1 text-sm text-muted-foreground">
-            Your workspace defaults and display conventions.
+            Your workspace defaults and
+            display conventions.
           </p>
         </div>
 
@@ -53,6 +99,7 @@ export default function SettingsPage() {
             <h3 className="text-base font-semibold tracking-tight text-foreground">
               General Preferences
             </h3>
+
             <p className="mt-1 text-xs text-muted-foreground">
               Your current application settings
             </p>
@@ -60,6 +107,7 @@ export default function SettingsPage() {
             <div className="mt-4 divide-y divide-border">
               {preferences.map((item) => {
                 const Icon = item.icon;
+
                 return (
                   <div
                     key={item.title}
@@ -67,12 +115,18 @@ export default function SettingsPage() {
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
-                        <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
+                        <Icon
+                          size={18}
+                          strokeWidth={1.8}
+                          aria-hidden="true"
+                        />
                       </div>
+
                       <span className="text-sm font-medium text-foreground">
                         {item.title}
                       </span>
                     </div>
+
                     <span className="text-sm text-muted-foreground sm:text-right">
                       {item.value}
                     </span>
@@ -84,15 +138,31 @@ export default function SettingsPage() {
         </Card>
       </section>
 
-      {/* Keep CategoryManager and its existing forms/actions unchanged. */}
-      <section aria-label="Category management" className="min-w-0">
+      {/* CATEGORY MANAGEMENT */}
+
+      <section
+        aria-label="Category management"
+        className="min-w-0"
+      >
         <CategoryManager />
       </section>
 
-      {/* Keep JSON backup, restore and data controls unchanged. */}
-      <section aria-label="Data safety tools" className="min-w-0">
+      {/* EXISTING DATA SAFETY AND AUDIT */}
+
+      <section
+        aria-label="Data safety tools"
+        className="min-w-0"
+      >
         <DataSafety />
       </section>
+
+      {/* COMPLETE BACKUP EXPORT */}
+
+      <CompleteBackupExport />
+
+      {/* COMPLETE BACKUP RESTORE */}
+
+      <CompleteBackupRestore />
     </div>
   );
 }
