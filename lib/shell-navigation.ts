@@ -4,16 +4,25 @@ import {
   ReceiptText,
   Wallet,
   Target,
+  Repeat2,
   BarChart3,
   Settings2,
   type LucideIcon,
 } from "lucide-react";
+
+// ==========================================
+// NAVIGATION ITEM TYPE
+// ==========================================
 
 export interface ShellNavItem {
   title: string;
   href: string;
   icon: LucideIcon;
 }
+
+// ==========================================
+// MAIN APPLICATION NAVIGATION
+// ==========================================
 
 export const shellNavItems: ShellNavItem[] = [
   {
@@ -37,6 +46,11 @@ export const shellNavItems: ShellNavItem[] = [
     icon: Target,
   },
   {
+    title: "Recurring",
+    href: "/recurring",
+    icon: Repeat2,
+  },
+  {
     title: "Analytics",
     href: "/analytics",
     icon: BarChart3,
@@ -47,6 +61,10 @@ export const shellNavItems: ShellNavItem[] = [
     icon: Settings2,
   },
 ];
+
+// ==========================================
+// ACTIVE NAVIGATION DETECTION
+// ==========================================
 
 export function isShellRouteActive(
   pathname: string,

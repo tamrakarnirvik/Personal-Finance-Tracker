@@ -28,13 +28,9 @@ import {
   SettingsOverview,
 } from "@/components/settings/settings-overview";
 
-import {
-  CompleteBackupExport,
-} from "@/components/settings/complete-backup-export";
 
-import {
-  CompleteBackupRestore,
-} from "@/components/settings/complete-backup-restore";
+import { CompleteWorkspaceBackup } from "@/components/settings/complete-workspace-backup";
+
 
 interface Preference {
   title: string;
@@ -156,13 +152,8 @@ export default function SettingsPage() {
         <DataSafety />
       </section>
 
-      {/* COMPLETE BACKUP EXPORT */}
-
-      <CompleteBackupExport />
-
-      {/* COMPLETE BACKUP RESTORE */}
-
-      <CompleteBackupRestore />
+      {/* Unified Version 2 backup and restore */}
+<CompleteWorkspaceBackup />
     </div>
   );
 }
