@@ -2,19 +2,37 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { CircleUserRound } from "lucide-react";
 
-import { ThemeToggle } from "@/components/theme-toggle";
-import { shellNavItems } from "@/lib/shell-navigation";
+import {
+  CircleUserRound,
+} from "lucide-react";
+
+import {
+  ThemeToggle,
+} from "@/components/theme-toggle";
+
+import {
+  shellNavItems,
+} from "@/lib/shell-navigation";
+
+// ==========================================
+// APPLICATION HEADER
+// ==========================================
 
 export function AppHeader() {
   const pathname = usePathname();
+
+  // ========================================
+  // CURRENT PAGE TITLE
+  // ========================================
 
   const currentPage =
     shellNavItems.find(
       (item) =>
         pathname === item.href ||
-        pathname.startsWith(`${item.href}/`)
+        pathname.startsWith(
+          `${item.href}/`
+        )
     )?.title ?? "Workspace";
 
   return (
@@ -26,17 +44,35 @@ export function AppHeader() {
         backdrop-blur-xl
       "
     >
-      
-<div className="mx-auto flex h-19 w-full max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-8 lg:px-10">
+      <div
+        className="
+          mx-auto flex h-19 w-full
+          max-w-[1600px]
+          items-center justify-between
+          gap-4 px-4
+          sm:px-8 lg:px-10
+        "
+      >
+        {/* PAGE CONTEXT */}
 
-        {/* Page context */}
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+          <div
+            className="
+              flex items-center gap-2
+              text-[11px] font-medium
+              text-muted-foreground
+            "
+          >
             <span className="hidden sm:inline">
               Personal Finance
             </span>
 
-            <span className="hidden text-border sm:inline">
+            <span
+              className="
+                hidden text-border
+                sm:inline
+              "
+            >
               /
             </span>
 
@@ -45,24 +81,62 @@ export function AppHeader() {
             </span>
           </div>
 
-          <p 
-className="mt-1 truncate text-[15px] font-semibold tracking-tight text-foreground sm:text-base"
->
+          {/* PAGE TITLE */}
+
+          <p
+            className="
+              mt-1 truncate
+              text-[15px] font-semibold
+              tracking-tight
+              text-foreground
+              sm:text-base
+            "
+          >
             {currentPage}
           </p>
         </div>
 
-        {/* Right controls */}
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <span className="hidden rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold tracking-wide text-muted-foreground sm:inline-flex">
+        {/* RIGHT-SIDE CONTROLS */}
+
+        <div
+          className="
+            flex shrink-0
+            items-center gap-2
+            sm:gap-3
+          "
+        >
+          {/* CURRENCY INDICATOR */}
+
+          <span
+            className="
+              hidden rounded-full
+              border border-border
+              bg-card px-3 py-1.5
+              text-[11px] font-semibold
+              tracking-wide
+              text-muted-foreground
+              sm:inline-flex
+            "
+          >
             NPR
           </span>
 
-          {/* Existing working light/dark mode control */}
+          {/* THEME TOGGLE */}
+
           <ThemeToggle />
 
+          {/* PERSONAL WORKSPACE */}
+
           <div
-            className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground"
+            className="
+              flex size-9
+              items-center
+              justify-center
+              rounded-full
+              border border-border
+              bg-card
+              text-muted-foreground
+            "
             aria-label="Personal workspace"
             title="Personal workspace"
           >

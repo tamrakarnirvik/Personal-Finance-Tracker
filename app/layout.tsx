@@ -2,6 +2,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { ThemeProvider } from "@/components/theme-provider";
+
 import "./globals.css";
 
 // ==========================================
@@ -24,9 +26,17 @@ export default function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        {children}
+        <ThemeProvider
+          attribute="class"
+          storageKey="theme"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

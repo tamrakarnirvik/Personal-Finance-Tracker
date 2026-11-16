@@ -1,71 +1,121 @@
-"use client"
 
-import * as React from "react"
-import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
+"use client";
 
-function ThemeProvider({
+import * as React from "react";
+
+import {
+  ThemeProvider as NextThemesProvider,
+  useTheme,
+  type ThemeProviderProps,
+} from "next-themes";
+
+// ==========================================
+// THEME PROVIDER
+// ==========================================
+
+export function ThemeProvider({
   children,
   ...props
-}: React.ComponentProps<typeof NextThemesProvider>) {
+}: ThemeProviderProps) {
   return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-      {...props}
-    >
+    <NextThemesProvider {...props}>
       <ThemeHotkey />
       {children}
     </NextThemesProvider>
-  )
+  );
 }
 
-function isTypingTarget(target: EventTarget | null) {
+// ==========================================
+// CHECK WHETHER THE USER IS TYPING
+// ==========================================
+
+function isTypingTarget(
+  target: EventTarget | null
+): boolean {
   if (!(target instanceof HTMLElement)) {
-    return false
+    return false;
   }
 
   return (
     target.isContentEditable ||
-    target.tagName === "INPUT" ||
-    target.tagName === "TEXTAREA" ||
-    target.tagName === "SELECT"
-  )
+    target.closest(
+      'input, textarea, select, [contenteditable="true"]'
+    ) !== null
+  );
 }
+
+// ==========================================
+// KEYBOARD THEME SHORTCUT
+// ==========================================
+//
+// Press D to switch between light and dark.
+//
+// Does not activate while typing inside
+// inputs, textareas or editable elements.
 
 function ThemeHotkey() {
-  const { resolvedTheme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme();
 
   React.useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.defaultPrevented || event.repeat) {
-        return
+    function handleKeyDown(
+      event: KeyboardEvent
+    ) {
+      if (
+        event.defaultPrevented ||
+        event.repeat
+      ) {
+        return;
       }
 
-      if (event.metaKey || event.ctrlKey || event.altKey) {
-        return
+      if (
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        event.shiftKey
+      ) {
+        return;
       }
 
-      if (event.key.toLowerCase() !== "d") {
-        return
+      if (
+        event.key.toLowerCase() !== "d"
+      ) {
+        return;
       }
 
-      if (isTypingTarget(event.target)) {
-        return
+      if (
+        isTypingTarget(event.target)
+      ) {
+        return;
       }
 
-      setTheme(resolvedTheme === "dark" ? "light" : "dark")
+      if (
+        resolvedTheme !== "light" &&
+        resolvedTheme !== "dark"
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+
+      setTheme(
+        resolvedTheme === "dark"
+          ? "light"
+          : "dark"
+      );
     }
 
-    window.addEventListener("keydown", onKeyDown)
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
 
     return () => {
-      window.removeEventListener("keydown", onKeyDown)
-    }
-  }, [resolvedTheme, setTheme])
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
+    };
+  }, [resolvedTheme, setTheme]);
 
-  return null
+  return null;
 }
-
-export { ThemeProvider }

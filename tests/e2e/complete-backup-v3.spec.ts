@@ -1,24 +1,26 @@
 
-import {
-  expect,
-  test,
-} from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
-import {
-  readFile,
-} from "node:fs/promises";
+// ==========================================
+// COMPLETE BACKUP V4 AUTOMATION TEST
+// ==========================================
 
 test(
-  "complete backup V3 saves automation preferences and restores with auto-post disabled",
+  "current backup retains automation preferences and disables auto-post after restore",
   async ({ page }) => {
+    // ======================================
+    // STEP 1: OPEN SETTINGS
+    // ======================================
+
     await page.goto("/settings");
 
-    // ======================================
-    // SAVE TEST AUTOMATION PREFERENCES
-    // ======================================
+    // Test automation settings using a
+    // fresh, disposable Playwright browser
+    // context.
 
     await page.evaluate(() => {
-      localStorage.setItem(
+      window.localStorage.setItem(
         "expense-tracker-recurring-automation-v1",
         JSON.stringify({
           autoPostDueToday: true,
@@ -29,7 +31,7 @@ test(
     });
 
     // ======================================
-    // EXPORT COMPLETE BACKUP
+    // STEP 2: EXPORT COMPLETE BACKUP
     // ======================================
 
     const downloadPromise =
@@ -54,21 +56,19 @@ test(
     }
 
     const json =
-      await readFile(
-        path,
-        "utf8"
-      );
+      await readFile(path, "utf8");
 
     const backup =
       JSON.parse(json);
 
     // ======================================
-    // VALIDATE EXPORTED CONTENT
+    // STEP 3: VERIFY BACKUP V4
     // ======================================
 
-    expect(
-      backup.version
-    ).toBe(3);
+    // V4 includes automation preferences
+    // originally introduced in V3.
+
+    expect(backup.version).toBe(4);
 
     expect(
       backup.data.automation
@@ -84,32 +84,25 @@ test(
     );
 
     // ======================================
-    // UPLOAD BACKUP
+    // STEP 4: UPLOAD BACKUP FOR VALIDATION
     // ======================================
 
     await page
-      .locator(
-        "#complete-backup-json"
-      )
+      .locator("#complete-backup-json")
       .setInputFiles({
-        name:
-          "test-backup-v3.json",
-
-        mimeType:
-          "application/json",
-
-        buffer:
-          Buffer.from(json),
+        name: "test-backup-v4.json",
+        mimeType: "application/json",
+        buffer: Buffer.from(json),
       });
 
     await expect(
       page.getByText(
-        "Validated backup · Version 3"
+        "Validated backup · Version 4"
       )
     ).toBeVisible();
 
     // ======================================
-    // DOWNLOAD RECOVERY COPY
+    // STEP 5: DOWNLOAD RECOVERY COPY
     // ======================================
 
     const recoveryPromise =
@@ -130,14 +123,18 @@ test(
     ).toBeTruthy();
 
     // ======================================
-    // CONFIRM RESTORATION
+    // STEP 6: CONFIRM RECOVERY FILE
     // ======================================
 
     await page
       .getByLabel(
-        "I checked that my recovery JSON file was saved to this device."
+        "I verified that my recovery JSON file was saved to this device."
       )
       .check();
+
+    // ======================================
+    // STEP 7: CONFIRM RESTORE
+    // ======================================
 
     await page
       .getByLabel(
@@ -145,37 +142,37 @@ test(
       )
       .fill("RESTORE");
 
-    page.once(
-      "dialog",
-      (dialog) =>
-        dialog.accept()
+    page.once("dialog", (dialog) =>
+      dialog.accept()
     );
+
+    // ======================================
+    // STEP 8: RESTORE BACKUP
+    // ======================================
 
     await page
       .getByRole("button", {
-        name:
-          "Restore complete backup",
+        name: "Restore complete backup",
       })
       .click();
 
     // ======================================
-    // VERIFY AUTO-POSTING IS DISABLED
+    // STEP 9: VERIFY AUTO-POSTING IS OFF
     // ======================================
 
     await expect
-      .poll(
-        async () =>
-          page.evaluate(() => {
-            const raw =
-              localStorage.getItem(
-                "expense-tracker-recurring-automation-v1"
-              );
+      .poll(() =>
+        page.evaluate(() => {
+          const raw =
+            window.localStorage.getItem(
+              "expense-tracker-recurring-automation-v1"
+            );
 
-            return raw
-              ? JSON.parse(raw)
-                  .autoPostDueToday
-              : null;
-          })
+          return raw
+            ? JSON.parse(raw)
+                .autoPostDueToday
+            : null;
+        })
       )
       .toBe(false);
   }

@@ -1,62 +1,39 @@
-
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
-test(
-  "complete backup includes all financial data sections",
-  async ({ page }) => {
-    await page.goto("/settings");
+test("current complete backup includes all financial data sections", async ({ page }) => {
+  await page.goto("/settings");
 
-    const downloadPromise =
-      page.waitForEvent("download");
+  const downloadPromise = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Download complete backup" }).click();
 
-    await page
-      .getByRole("button", {
-        name: "Download complete backup",
-      })
-      .click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/expense-tracker-complete-v4-.*\.json$/);
 
-    const download = await downloadPromise;
+  const path = await download.path();
+  if (!path) throw new Error("Download path is unavailable");
 
-    const filePath = await download.path();
+  const backup: unknown = JSON.parse(await readFile(path, "utf8"));
+  expect(backup).toMatchObject({
+    application: "expense-tracker",
+    format: "complete-workspace-backup",
+    version: 4,
+  });
 
-    if (!filePath) {
-      throw new Error(
-        "Downloaded backup file was not found."
-      );
-    }
-
-    const content = await readFile(
-      filePath,
-      "utf8"
-    );
-
-    const backup = JSON.parse(content);
-
-    expect(backup.application).toBe(
-      "expense-tracker"
-    );
-
-    expect(backup.version).toBe(1);
-
-    expect(
-      Array.isArray(backup.data.accounts)
-    ).toBe(true);
-
-    expect(
-      Array.isArray(backup.data.transactions)
-    ).toBe(true);
-
-    expect(
-      Array.isArray(backup.data.categories)
-    ).toBe(true);
-
-    expect(
-      Array.isArray(backup.data.budgets)
-    ).toBe(true);
-
-    expect(backup.storage).toHaveProperty(
-      "expense-tracker-budgets-v1"
-    );
-  }
-);
+  const data = (backup as { data: Record<string, unknown> }).data;
+  expect(Array.isArray(data.accounts)).toBe(true);
+  expect(Array.isArray(data.transactions)).toBe(true);
+  expect(Array.isArray(data.categories)).toBe(true);
+  expect(Array.isArray(data.budgets)).toBe(true);
+  expect(Array.isArray(data.recurring)).toBe(true);
+  expect(data.automation).toMatchObject({
+    autoPostDueToday: expect.any(Boolean),
+    showDashboardWidget: expect.any(Boolean),
+    reminderDaysAhead: expect.any(Number),
+  });
+  expect(data.goals).toMatchObject({
+    version: 1,
+    goals: expect.any(Array),
+    movements: expect.any(Array),
+  });
+});
