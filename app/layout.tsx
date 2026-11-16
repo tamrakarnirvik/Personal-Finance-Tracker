@@ -1,80 +1,33 @@
 
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import {
-  CategoryProvider,
-} from "@/components/categories/category-provider";
+import "./globals.css";
 
-import {
-  TransactionProvider,
-} from "@/components/transactions/transaction-provider";
+// ==========================================
+// APPLICATION METADATA
+// ==========================================
 
-import {
-  AppSidebar,
-} from "@/components/layout/app-sidebar";
+export const metadata: Metadata = {
+  title: "Expense Tracker 2.0",
+  description:
+    "Personal finance management, budgeting, recurring transactions, savings goals and financial reports.",
+};
 
-import {
-  AppHeader,
-} from "@/components/layout/app-header";
+// ==========================================
+// ROOT LAYOUT
+// ==========================================
 
-import {
-  MobileNav,
-} from "@/components/layout/mobile-nav";
-
-import {
-  PageTransition,
-} from "@/components/layout/page-transition";
-
-import {
-  RecurringAutomationHost,
-} from "@/components/recurring/recurring-automation-host";
-
-export default function WorkspaceLayout({
+export default function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
   return (
-    <TransactionProvider>
-      <CategoryProvider>
-
-        {/* Recurring automation must be
-            inside both finance providers. */}
-        <RecurringAutomationHost />
-
-        {/* Main application shell */}
-        <div className="min-h-dvh overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
-
-          {/* Accessibility skip link */}
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-xl focus:border focus:border-border focus:bg-card focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-foreground focus:shadow-lg focus:outline-2 focus:outline-offset-2 focus:outline-ring"
-          >
-            Skip to main content
-          </a>
-
-          {/* Desktop sidebar */}
-          <AppSidebar />
-
-          {/* Header and page content */}
-          <div className="min-w-0 lg:pl-64">
-            <AppHeader />
-
-            <main
-              id="main-content"
-              className="mx-auto w-full max-w-7xl px-4 pt-6 pb-28 sm:px-6 lg:px-8 lg:pt-8 lg:pb-10"
-            >
-              <PageTransition>
-                {children}
-              </PageTransition>
-            </main>
-          </div>
-
-          {/* Mobile navigation */}
-          <MobileNav />
-
-        </div>
-      </CategoryProvider>
-    </TransactionProvider>
+    <html lang="en">
+      <body>
+        {children}
+      </body>
+    </html>
   );
 }

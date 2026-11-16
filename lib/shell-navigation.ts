@@ -7,6 +7,7 @@ import {
   Repeat2,
   PiggyBank,
   BarChart3,
+  FileText,
   Settings2,
   type LucideIcon,
 } from "lucide-react";
@@ -52,6 +53,11 @@ export const shellNavItems: ShellNavItem[] = [
     title: "Analytics",
     href: "/analytics",
     icon: BarChart3,
+  },
+  {
+    title: "Reports",
+    href: "/reports",
+    icon: FileText,
   },
   {
     title: "Settings",

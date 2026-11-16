@@ -104,27 +104,7 @@ export function AppSidebar() {
         </nav>
       </div>
 
-      {/* Local workspace information */}
-      <div className="p-4">
-        <div className="rounded-2xl border border-sidebar-border bg-muted/60 p-4">
-          <div className="mb-3 flex size-9 items-center justify-center rounded-xl bg-card text-primary">
-            <ShieldCheck size={18} />
-          </div>
-
-          <p className="text-xs font-semibold">
-            Local workspace
-          </p>
-
-          <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
-            Your financial records are currently
-            saved in this browser.
-          </p>
-        </div>
-
-        <p className="mt-4 text-center text-[10px] tracking-wide text-muted-foreground">
-          EXPENSE TRACKER · DEVELOPMENT
-        </p>
-      </div>
+      
     </aside>
   );
 }
