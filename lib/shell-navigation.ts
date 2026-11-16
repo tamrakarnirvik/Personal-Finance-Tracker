@@ -5,24 +5,17 @@ import {
   Wallet,
   Target,
   Repeat2,
+  PiggyBank,
   BarChart3,
   Settings2,
   type LucideIcon,
 } from "lucide-react";
-
-// ==========================================
-// NAVIGATION ITEM TYPE
-// ==========================================
 
 export interface ShellNavItem {
   title: string;
   href: string;
   icon: LucideIcon;
 }
-
-// ==========================================
-// MAIN APPLICATION NAVIGATION
-// ==========================================
 
 export const shellNavItems: ShellNavItem[] = [
   {
@@ -51,6 +44,11 @@ export const shellNavItems: ShellNavItem[] = [
     icon: Repeat2,
   },
   {
+    title: "Goals",
+    href: "/goals",
+    icon: PiggyBank,
+  },
+  {
     title: "Analytics",
     href: "/analytics",
     icon: BarChart3,
@@ -61,10 +59,6 @@ export const shellNavItems: ShellNavItem[] = [
     icon: Settings2,
   },
 ];
-
-// ==========================================
-// ACTIVE NAVIGATION DETECTION
-// ==========================================
 
 export function isShellRouteActive(
   pathname: string,

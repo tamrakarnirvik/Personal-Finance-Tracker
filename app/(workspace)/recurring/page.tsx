@@ -15,22 +15,29 @@ import {
   RecurringManager,
 } from "@/components/recurring/recurring-manager";
 
+import {
+  RecurringPostingHistory,
+} from "@/components/recurring/recurring-posting-history";
+
 export default function RecurringPage() {
   return (
     <div className="space-y-7">
       <PageHeading
         title="Recurring Transactions"
-        description="Manage recurring income, expenses and in-app reminders"
+        description="Manage recurring income, expenses, reminders and posting history"
       />
 
-      {/* NEW AUTOMATION PREFERENCES */}
+      {/* Automation preferences */}
       <RecurringAutomationSettings />
 
-      {/* UPCOMING AND OVERDUE REMINDERS */}
+      {/* Upcoming and overdue reminders */}
       <RecurringReminderCenter />
 
-      {/* EXISTING SCHEDULE MANAGER */}
+      {/* Existing recurring schedule manager */}
       <RecurringManager />
+
+      {/* New posting history */}
+      <RecurringPostingHistory />
     </div>
   );
 }

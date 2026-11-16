@@ -29,9 +29,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000/dashboard",
-    reuseExistingServer: true,
-    timeout: 120000,
-  },
+  command: "npm run start",
+  url: "http://127.0.0.1:3000",
+  reuseExistingServer: false,
+  timeout: 120_000,
+},
 });

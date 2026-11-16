@@ -1,7 +1,11 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import {
+  useMemo,
+  useState,
+} from "react";
+
 import Link from "next/link";
 
 import {
@@ -42,6 +46,10 @@ import {
 } from "@/components/recurring/recurring-dashboard-widget";
 
 import {
+  GoalsDashboardWidget,
+} from "@/components/goals/goals-dashboard-widget";
+
+import {
   calculateAccountBalance,
   calculateTotals,
   formatNpr,
@@ -55,9 +63,9 @@ import type {
   FinanceTransaction,
 } from "@/types/finance";
 
-// ==========================================
-// FINANCIAL METRIC CARD
-// ==========================================
+// ======================================
+// METRIC CARD
+// ======================================
 
 type MetricTone =
   | "income"
@@ -90,12 +98,15 @@ function MetricCard({
     expense: {
       icon:
         "bg-orange-50 text-orange-700 dark:bg-orange-950/40 dark:text-orange-300",
-      amount: "text-foreground",
+      amount:
+        "text-foreground",
     },
 
     neutral: {
-      icon: "bg-muted text-foreground",
-      amount: "text-foreground",
+      icon:
+        "bg-muted text-foreground",
+      amount:
+        "text-foreground",
     },
   };
 
@@ -121,7 +132,9 @@ function MetricCard({
       <p
         className={`mt-5 wrap-break-word text-2xl font-semibold tracking-tight tabular-nums sm:text-[27px] ${colors.amount}`}
       >
-        {formatNpr(amountPaisa)}
+        {formatNpr(
+          amountPaisa
+        )}
       </p>
 
       <p className="mt-2 text-xs text-muted-foreground">
@@ -131,9 +144,9 @@ function MetricCard({
   );
 }
 
-// ==========================================
+// ======================================
 // SECTION HEADING
-// ==========================================
+// ======================================
 
 function SectionHeading({
   title,
@@ -163,7 +176,7 @@ function SectionHeading({
       {href && linkText && (
         <Link
           href={href}
-          className="inline-flex items-center gap-1 text-xs font-semibold text-primary transition-opacity hover:opacity-75"
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:opacity-75"
         >
           {linkText}
           <ChevronRight size={15} />
@@ -173,9 +186,9 @@ function SectionHeading({
   );
 }
 
-// ==========================================
+// ======================================
 // RECENT TRANSACTION ROW
-// ==========================================
+// ======================================
 
 function RecentTransactionRow({
   transaction,
@@ -194,11 +207,13 @@ function RecentTransactionRow({
 
   const title =
     transaction.note?.trim() ||
-    (isTransfer
-      ? "Account transfer"
-      : getCategoryName(
-          transaction.categoryId
-        ));
+    (
+      isTransfer
+        ? "Account transfer"
+        : getCategoryName(
+            transaction.categoryId
+          )
+    );
 
   let subtitle = "";
 
@@ -235,17 +250,15 @@ function RecentTransactionRow({
       ? ArrowDownLeft
       : ArrowUpRight;
 
-  const amountPrefix = isTransfer
+  const prefix = isTransfer
     ? ""
     : isIncome
       ? "+"
       : "−";
 
-  const amountColor = isTransfer
-    ? "text-foreground"
-    : isIncome
-      ? "text-emerald-700 dark:text-emerald-300"
-      : "text-foreground";
+  const amountColor = isIncome
+    ? "text-emerald-700 dark:text-emerald-300"
+    : "text-foreground";
 
   const dateLabel = new Date(
     `${transaction.occurredOn}T12:00:00`
@@ -257,15 +270,12 @@ function RecentTransactionRow({
 
   return (
     <div className="flex min-w-0 items-center gap-3 border-b border-border/70 py-4 last:border-0">
-      {/* Transaction icon */}
       <div
-        className={[
-          "flex size-11 shrink-0 items-center",
-          "justify-center rounded-xl",
+        className={`flex size-11 shrink-0 items-center justify-center rounded-xl ${
           isIncome
             ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300"
-            : "bg-muted text-muted-foreground",
-        ].join(" ")}
+            : "bg-muted text-muted-foreground"
+        }`}
       >
         <Icon
           size={19}
@@ -273,7 +283,6 @@ function RecentTransactionRow({
         />
       </div>
 
-      {/* Transaction information */}
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-semibold text-foreground sm:text-sm">
           {title}
@@ -284,12 +293,11 @@ function RecentTransactionRow({
         </p>
       </div>
 
-      {/* Transaction amount and date */}
       <div className="shrink-0 text-right">
         <p
           className={`text-[13px] font-semibold tabular-nums sm:text-sm ${amountColor}`}
         >
-          {amountPrefix}
+          {prefix}
           {formatNpr(
             transaction.amountPaisa
           )}
@@ -303,9 +311,9 @@ function RecentTransactionRow({
   );
 }
 
-// ==========================================
+// ======================================
 // MAIN DASHBOARD PAGE
-// ==========================================
+// ======================================
 
 export default function DashboardPage() {
   const {
@@ -317,17 +325,11 @@ export default function DashboardPage() {
     getCategoryName,
   } = useCategories();
 
-  // ========================================
-  // CURRENT MONTH
-  // ========================================
-
-  const [monthKey] = useState(() =>
-    getMonthKey(new Date())
+  const [monthKey] = useState(
+    () => getMonthKey(new Date())
   );
 
-  // ========================================
-  // TOTAL BALANCE
-  // ========================================
+  // Total across all accounts.
 
   const totalBalancePaisa = useMemo(
     () =>
@@ -343,9 +345,7 @@ export default function DashboardPage() {
     [accounts, transactions]
   );
 
-  // ========================================
-  // MONTHLY TRANSACTIONS
-  // ========================================
+  // Monthly income/expenses.
 
   const monthlyTransactions = useMemo(
     () =>
@@ -358,10 +358,6 @@ export default function DashboardPage() {
     [transactions, monthKey]
   );
 
-  // ========================================
-  // MONTHLY TOTALS
-  // ========================================
-
   const monthlyTotals = useMemo(
     () =>
       calculateTotals(
@@ -370,9 +366,7 @@ export default function DashboardPage() {
     [monthlyTransactions]
   );
 
-  // ========================================
-  // RECENT TRANSACTIONS
-  // ========================================
+  // Recent transactions.
 
   const recentTransactions = useMemo(
     () =>
@@ -388,9 +382,7 @@ export default function DashboardPage() {
     [transactions]
   );
 
-  // ========================================
-  // ACCOUNT NAME LOOKUP
-  // ========================================
+  // Account lookup.
 
   const accountNames = useMemo(
     () =>
@@ -405,9 +397,7 @@ export default function DashboardPage() {
     [accounts]
   );
 
-  // ========================================
-  // FORMATTED MONTH LABEL
-  // ========================================
+  // Current month label.
 
   const monthLabel = useMemo(() => {
     const [year, month] = monthKey
@@ -424,16 +414,14 @@ export default function DashboardPage() {
     });
   }, [monthKey]);
 
-  // ========================================
-  // DASHBOARD USER INTERFACE
-  // ========================================
+  // ====================================
+  // RETURN DASHBOARD UI
+  // ====================================
 
   return (
     <div className="space-y-8 pb-6 sm:space-y-10">
 
-      {/* ======================================
-          PAGE HEADING
-          ====================================== */}
+      {/* PAGE HEADING */}
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -447,22 +435,20 @@ export default function DashboardPage() {
           </h1>
 
           <p className="mt-2 text-[13px] text-muted-foreground sm:text-sm">
-            A clear picture of your money, all in one place.
+            A clear picture of your money,
+            all in one place.
           </p>
         </div>
 
         <TransactionDialog />
       </div>
 
-      {/* ======================================
-          TOTAL BALANCE HERO
-          ====================================== */}
+      {/* TOTAL BALANCE */}
 
       <section
-        className="relative overflow-hidden rounded-[22px] bg-[#146B55] p-6 text-white shadow-sm sm:p-8"
         aria-label="Total account balance"
+        className="relative overflow-hidden rounded-[22px] bg-[#146B55] p-6 text-white shadow-sm sm:p-8"
       >
-        {/* Decorative background shapes */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-12 -top-24 size-64 rounded-full border border-white/10"
@@ -474,8 +460,6 @@ export default function DashboardPage() {
         />
 
         <div className="relative z-10">
-
-          {/* Balance heading */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="flex items-center gap-2 text-[13px] font-medium text-white/80">
               <Wallet size={17} />
@@ -487,7 +471,6 @@ export default function DashboardPage() {
             </span>
           </div>
 
-          {/* Actual balance */}
           <p
             data-testid="dashboard-total-balance"
             className="mt-5 wrap-break-word text-[32px] font-semibold tracking-tight tabular-nums sm:text-[42px]"
@@ -497,7 +480,6 @@ export default function DashboardPage() {
             )}
           </p>
 
-          {/* Account count */}
           <p className="mt-2 text-xs text-white/70 sm:text-sm">
             Combined balance across{" "}
             {accounts.length}{" "}
@@ -506,11 +488,10 @@ export default function DashboardPage() {
               : "accounts"}
           </p>
 
-          {/* Accounts link */}
           <div className="mt-8 border-t border-white/20 pt-5">
             <Link
               href="/accounts"
-              className="inline-flex items-center gap-2 text-[13px] font-semibold text-white transition-opacity hover:opacity-75"
+              className="inline-flex items-center gap-2 text-[13px] font-semibold text-white hover:opacity-75"
             >
               View your accounts
               <ArrowRight size={16} />
@@ -519,13 +500,9 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ======================================
-          FINANCIAL METRICS
-          ====================================== */}
+      {/* MONTHLY FINANCIAL METRICS */}
 
       <div className="grid gap-4 md:grid-cols-3">
-
-        {/* Monthly income */}
         <MetricCard
           title="Monthly income"
           amountPaisa={
@@ -536,7 +513,6 @@ export default function DashboardPage() {
           tone="income"
         />
 
-        {/* Monthly expenses */}
         <MetricCard
           title="Monthly expenses"
           amountPaisa={
@@ -547,7 +523,6 @@ export default function DashboardPage() {
           tone="expense"
         />
 
-        {/* Net cash flow */}
         <MetricCard
           title="Net cash flow"
           amountPaisa={
@@ -559,15 +534,15 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* ======================================
-          NEW: RECURRING PAYMENTS OVERVIEW
-          ====================================== */}
+      {/* RECURRING PAYMENTS */}
 
       <RecurringDashboardWidget />
 
-      {/* ======================================
-          LIVE FINANCIAL CHARTS
-          ====================================== */}
+      {/* NEW: SAVINGS GOALS */}
+
+      <GoalsDashboardWidget />
+
+      {/* FINANCIAL CHARTS */}
 
       <section className="space-y-4">
         <SectionHeading
@@ -578,13 +553,10 @@ export default function DashboardPage() {
         />
 
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
-
-          {/* Spending chart */}
           <div className="min-w-0">
             <SpendingChart months={6} />
           </div>
 
-          {/* Category breakdown */}
           <div className="min-w-0">
             <CategoryBreakdown
               monthKey={monthKey}
@@ -593,15 +565,11 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ======================================
-          RECENT TRANSACTIONS AND ACCOUNTS
-          ====================================== */}
+      {/* RECENT TRANSACTIONS + ACCOUNTS */}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)]">
 
-        {/* ==================================
-            RECENT TRANSACTIONS
-            ================================== */}
+        {/* RECENT TRANSACTIONS */}
 
         <section className="clean-panel min-w-0 p-5 sm:p-6">
           <SectionHeading
@@ -619,13 +587,14 @@ export default function DashboardPage() {
                     key={transaction.id}
                     transaction={transaction}
                     accountNames={accountNames}
-                    getCategoryName={getCategoryName}
+                    getCategoryName={
+                      getCategoryName
+                    }
                   />
                 )
               )
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-
                 <div className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-muted">
                   <ReceiptText
                     size={21}
@@ -646,9 +615,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* ==================================
-            ACCOUNTS OVERVIEW
-            ================================== */}
+        {/* ACCOUNTS OVERVIEW */}
 
         <section className="clean-panel min-w-0 p-5 sm:p-6">
           <SectionHeading
@@ -672,13 +639,10 @@ export default function DashboardPage() {
                     key={account.id}
                     className="flex items-center gap-3 py-4 first:pt-1"
                   >
-
-                    {/* Account icon */}
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground">
                       <CreditCard size={18} />
                     </div>
 
-                    {/* Account information */}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[13px] font-semibold">
                         {account.name}
@@ -689,7 +653,6 @@ export default function DashboardPage() {
                       </p>
                     </div>
 
-                    {/* Account balance */}
                     <p
                       className={`shrink-0 text-right text-[13px] font-semibold tabular-nums ${
                         balance < 0
@@ -709,10 +672,9 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Manage accounts link */}
           <Link
             href="/accounts"
-            className="mt-4 flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3 text-xs font-semibold text-foreground transition-colors hover:bg-muted"
+            className="mt-4 flex items-center justify-between rounded-xl border border-border bg-muted/40 px-4 py-3 text-xs font-semibold text-foreground hover:bg-muted"
           >
             Manage your accounts
             <ChevronRight size={16} />

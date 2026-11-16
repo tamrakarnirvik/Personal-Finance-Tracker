@@ -9,11 +9,13 @@ import {
 import {
   Download,
   ShieldCheck,
-  Upload,
   TriangleAlert,
+  Upload,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import {
+  Button,
+} from "@/components/ui/button";
 
 import {
   useTransactions,
@@ -24,39 +26,41 @@ import {
 } from "@/components/categories/category-provider";
 
 import {
-  createCompleteBackupV2,
-  readBackupExtras,
-  restoreSupportedCompleteBackup,
-  validateSupportedCompleteBackup,
-  type SupportedCompleteBackup,
-} from "@/lib/complete-backup-v2";
+  createCompleteBackupV4,
+  restoreBackupWithGoals,
+  validateBackupWithGoals,
+  type AnyBackupWithGoals,
+} from "@/lib/complete-backup-v4";
 
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_BYTES =
+  10 * 1024 * 1024;
 
-// ==========================================
-// DOWNLOAD JSON
-// ==========================================
+// ======================================
+// DOWNLOAD A JSON FILE
+// ======================================
 
 function downloadJson(
   value: unknown,
   filename: string
-): void {
-  const url = URL.createObjectURL(
-    new Blob(
-      [
-        JSON.stringify(
-          value,
-          null,
-          2
-        ),
-      ],
-      {
-        type: "application/json",
-      }
-    )
+) {
+  const blob = new Blob(
+    [
+      JSON.stringify(
+        value,
+        null,
+        2
+      ),
+    ],
+    {
+      type: "application/json",
+    }
   );
 
-  const link = document.createElement("a");
+  const url =
+    URL.createObjectURL(blob);
+
+  const link =
+    document.createElement("a");
 
   link.href = url;
   link.download = filename;
@@ -71,9 +75,9 @@ function downloadJson(
   );
 }
 
-// ==========================================
-// MAIN COMPONENT
-// ==========================================
+// ======================================
+// BACKUP AND RESTORE COMPONENT
+// ======================================
 
 export function CompleteWorkspaceBackup() {
   const {
@@ -89,13 +93,23 @@ export function CompleteWorkspaceBackup() {
   const [
     selected,
     setSelected,
-  ] = useState<SupportedCompleteBackup | null>(
-    null
-  );
+  ] = useState<
+    AnyBackupWithGoals | null
+  >(null);
 
   const [
-    fileName,
-    setFileName,
+    filename,
+    setFilename,
+  ] = useState("");
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+  const [
+    notice,
+    setNotice,
   ] = useState("");
 
   const [
@@ -113,19 +127,12 @@ export function CompleteWorkspaceBackup() {
     setRecoveryVerified,
   ] = useState(false);
 
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  // ====================================
+  // CREATE CURRENT WORKSPACE BACKUP
+  // ====================================
 
-  // ========================================
-  // BUILD A COMPLETE BACKUP
-  // ========================================
-
-  function buildCurrentBackup() {
-    const extras = readBackupExtras(
-      window.localStorage
-    );
-
-    return createCompleteBackupV2(
+  function currentBackup() {
+    return createCompleteBackupV4(
       {
         accounts,
         transactions,
@@ -139,24 +146,24 @@ export function CompleteWorkspaceBackup() {
               )
           ),
       },
-      extras
+
+      window.localStorage
     );
   }
 
-  // ========================================
-  // EXPORT DATA
-  // ========================================
+  // ====================================
+  // EXPORT COMPLETE BACKUP
+  // ====================================
 
-  function exportComplete() {
+  function exportBackup() {
     setError("");
     setNotice("");
 
     try {
-      const file = buildCurrentBackup();
-
       downloadJson(
-        file,
-        `expense-tracker-complete-v2-${
+        currentBackup(),
+
+        `expense-tracker-complete-v4-${
           new Date()
             .toISOString()
             .slice(0, 10)
@@ -164,22 +171,22 @@ export function CompleteWorkspaceBackup() {
       );
 
       setNotice(
-        "Complete backup download started. Confirm it is in your Downloads folder."
+        "Backup download started. Check that the file was saved."
       );
     } catch (caught) {
       setError(
         caught instanceof Error
           ? caught.message
-          : "Could not export data."
+          : "Could not export backup."
       );
     }
   }
 
-  // ========================================
+  // ====================================
   // SELECT AND VALIDATE BACKUP
-  // ========================================
+  // ====================================
 
-  async function selectBackup(
+  async function chooseBackup(
     event: ChangeEvent<HTMLInputElement>
   ) {
     const file =
@@ -188,22 +195,22 @@ export function CompleteWorkspaceBackup() {
     event.currentTarget.value = "";
 
     setSelected(null);
-    setFileName("");
+    setFilename("");
+    setError("");
+    setNotice("");
     setConfirmation("");
     setRecoveryStarted(false);
     setRecoveryVerified(false);
-    setError("");
-    setNotice("");
 
     if (!file) return;
 
-    setFileName(file.name);
+    setFilename(
+      file.name
+    );
 
-    if (
-      file.size > MAX_FILE_BYTES
-    ) {
+    if (file.size > MAX_BYTES) {
       setError(
-        "The JSON file must be smaller than 10 MB."
+        "Backup must be smaller than 10 MB."
       );
 
       return;
@@ -215,15 +222,14 @@ export function CompleteWorkspaceBackup() {
           await file.text()
         );
 
-      const valid =
-        validateSupportedCompleteBackup(
+      setSelected(
+        validateBackupWithGoals(
           input
-        );
-
-      setSelected(valid);
+        )
+      );
 
       setNotice(
-        "Backup validated. No data has been changed."
+        "Backup validated. No records have been changed."
       );
     } catch (caught) {
       setError(
@@ -234,20 +240,18 @@ export function CompleteWorkspaceBackup() {
     }
   }
 
-  // ========================================
+  // ====================================
   // DOWNLOAD RECOVERY COPY
-  // ========================================
+  // ====================================
 
   function downloadRecovery() {
     setError("");
 
     try {
-      const recovery =
-        buildCurrentBackup();
-
       downloadJson(
-        recovery,
-        `expense-tracker-recovery-v2-${
+        currentBackup(),
+
+        `expense-tracker-recovery-v4-${
           new Date()
             .toISOString()
             .slice(0, 10)
@@ -258,7 +262,7 @@ export function CompleteWorkspaceBackup() {
       setRecoveryVerified(false);
 
       setNotice(
-        "Recovery download started. Verify the saved file before confirming."
+        "Recovery download started. Verify the JSON file is saved before continuing."
       );
     } catch (caught) {
       setRecoveryStarted(false);
@@ -272,9 +276,9 @@ export function CompleteWorkspaceBackup() {
     }
   }
 
-  // ========================================
-  // RESTORE
-  // ========================================
+  // ====================================
+  // RESTORE WORKSPACE
+  // ====================================
 
   function restore() {
     if (
@@ -286,24 +290,18 @@ export function CompleteWorkspaceBackup() {
       return;
     }
 
-    setError("");
+    const confirmed = window.confirm(
+      "Replace the current saved workspace? Automatic posting will be disabled. Confirm that your recovery file exists."
+    );
 
-    const warning =
-      selected.version === 1
-        ? "This version 1 backup contains no recurring schedules. Restore legacy financial data?"
-        : "This will replace accounts, transactions, categories, budgets AND recurring schedules. Continue?";
-
-    if (!window.confirm(warning)) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
-      restoreSupportedCompleteBackup(
+      restoreBackupWithGoals(
         selected,
         window.localStorage
       );
 
-      // Reload providers after restoration.
       window.location.reload();
     } catch (caught) {
       setError(
@@ -314,9 +312,9 @@ export function CompleteWorkspaceBackup() {
     }
   }
 
-  // ========================================
-  // BACKUP PREVIEW COUNTS
-  // ========================================
+  // ====================================
+  // BACKUP PREVIEW
+  // ====================================
 
   const counts = selected
     ? [
@@ -338,16 +336,29 @@ export function CompleteWorkspaceBackup() {
         ],
         [
           "Recurring",
-          selected.version === 2
+          selected.version !== 1
             ? selected.data.recurring.length
             : "Not included",
         ],
-      ]
+        [
+          "Automation",
+          selected.version === 3 ||
+          selected.version === 4
+            ? "Included"
+            : "Not included",
+        ],
+        [
+          "Savings goals",
+          selected.version === 4
+            ? selected.data.goals.goals.length
+            : "Not included",
+        ],
+      ] as const
     : [];
 
-  // ========================================
-  // USER INTERFACE
-  // ========================================
+  // ====================================
+  // UI
+  // ====================================
 
   return (
     <section
@@ -364,90 +375,84 @@ export function CompleteWorkspaceBackup() {
           />
 
           <h2 className="text-lg font-semibold">
-            Complete Data Backup & Restore
+            Complete Data Backup &amp; Restore
           </h2>
         </div>
 
         <p className="mt-2 text-sm text-muted-foreground">
-          Version 2 includes accounts,
-          transactions, categories, budgets
-          and recurring schedules.
+          Version 4 includes finances, budgets,
+          recurring schedules, automation
+          preferences and savings goals with
+          allocation history.
         </p>
       </div>
 
-      {/* EXPORT SECTION */}
+      {/* EXPORT */}
 
       <div className="space-y-3 rounded-xl border border-border p-4">
         <h3 className="text-sm font-semibold">
-          Export complete data
+          Export complete backup
         </h3>
 
         <p className="text-xs text-muted-foreground">
-          Exports a private JSON file on this
-          device. No data is sent to a server.
+          Download and protect your private
+          JSON file. Nothing is uploaded to
+          a server.
         </p>
 
-        <div>
-          <Button
-            type="button"
-            onClick={exportComplete}
-          >
-            <Download size={16} />
+        <Button
+          type="button"
+          onClick={exportBackup}
+        >
+          <Download size={16} />
 
-            Download complete backup
-          </Button>
-        </div>
+          Download complete backup
+        </Button>
       </div>
 
-      {/* RESTORE SECTION */}
+      {/* RESTORE */}
 
       <div className="space-y-4 rounded-xl border border-border p-4">
         <h3 className="text-sm font-semibold">
           Restore from backup
         </h3>
 
-        {/* WARNING */}
-
-        <div className="flex items-start gap-2 text-xs text-muted-foreground">
+        <p className="flex items-start gap-2 text-xs text-muted-foreground">
           <TriangleAlert
             size={17}
             className="shrink-0 text-amber-600"
           />
 
-          <p>
-            Restoration replaces saved records.
-            Use a separate browser profile for
-            your first test, and close other
-            Expense Tracker tabs before restoring.
-          </p>
-        </div>
-
-        {/* FILE SELECTOR */}
+          Restoring replaces saved records.
+          Close other tabs and test with
+          disposable data first. Auto-posting
+          is disabled after any restore.
+        </p>
 
         <div className="space-y-2">
           <label
-            htmlFor="complete-workspace-file"
+            htmlFor="complete-backup-json"
             className="block text-sm font-medium"
           >
-            Select complete backup JSON
+            Select a complete backup JSON file
           </label>
 
           <input
-            id="complete-workspace-file"
+            id="complete-backup-json"
             type="file"
             accept=".json,application/json"
-            onChange={selectBackup}
+            onChange={chooseBackup}
             className="block w-full rounded-xl border border-input bg-card p-3 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-muted file:px-3 file:py-2"
           />
 
-          {fileName && (
+          {filename && (
             <p className="break-all text-xs text-muted-foreground">
-              {fileName}
+              {filename}
             </p>
           )}
         </div>
 
-        {/* VALIDATED BACKUP PREVIEW */}
+        {/* VALIDATED PREVIEW */}
 
         {selected && (
           <div className="space-y-4">
@@ -464,12 +469,12 @@ export function CompleteWorkspaceBackup() {
                 ).toLocaleString("en-GB")}
               </p>
 
-              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {counts.map(
-                  ([name, count]) => (
-                    <div key={name}>
+                  ([label, count]) => (
+                    <div key={label}>
                       <p className="text-xs text-muted-foreground">
-                        {name}
+                        {label}
                       </p>
 
                       <p className="text-sm font-semibold tabular-nums">
@@ -481,19 +486,19 @@ export function CompleteWorkspaceBackup() {
               </div>
             </div>
 
-            {/* LEGACY BACKUP WARNING */}
+            {/* OLD BACKUP WARNING */}
 
-            {selected.version === 1 && (
-              <p className="text-sm text-amber-700 dark:text-amber-400">
-                This older backup cannot
-                restore recurring schedules.
-                If this browser already has any
-                recurring schedules, restoration
-                will be blocked to protect them.
+            {selected.version < 4 && (
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                Older backups do not include
+                savings goals. If goals already
+                exist here, restoration will
+                be blocked. Create a v4
+                recovery copy first.
               </p>
             )}
 
-            {/* RECOVERY DOWNLOAD */}
+            {/* RECOVERY COPY */}
 
             <Button
               type="button"
@@ -505,11 +510,10 @@ export function CompleteWorkspaceBackup() {
               Download current-data recovery copy
             </Button>
 
-            {/* RECOVERY VERIFICATION */}
-
             <label className="flex items-start gap-2 text-sm">
               <input
                 type="checkbox"
+                className="mt-1"
                 checked={recoveryVerified}
                 disabled={!recoveryStarted}
                 onChange={(event) =>
@@ -517,26 +521,24 @@ export function CompleteWorkspaceBackup() {
                     event.target.checked
                   )
                 }
-                className="mt-1"
               />
 
-              I verified the recovery JSON
-              file was saved to my device.
+              I verified that my recovery JSON
+              file was saved to this device.
             </label>
 
-            {/* CONFIRMATION INPUT */}
+            {/* CONFIRMATION */}
 
             <div className="space-y-2">
               <label
-                htmlFor="complete-restore-confirm"
+                htmlFor="complete-restore-typed"
                 className="block text-sm font-medium"
               >
                 Type RESTORE to replace current data
               </label>
 
               <input
-                id="complete-restore-confirm"
-                autoComplete="off"
+                id="complete-restore-typed"
                 value={confirmation}
                 onChange={(event) =>
                   setConfirmation(
@@ -544,21 +546,20 @@ export function CompleteWorkspaceBackup() {
                   )
                 }
                 placeholder="RESTORE"
+                autoComplete="off"
                 className="h-11 w-full rounded-xl border border-input bg-card px-3 text-sm"
               />
             </div>
 
-            {/* RESTORE ACTION */}
-
             <Button
               type="button"
               variant="destructive"
-              onClick={restore}
               disabled={
                 !recoveryStarted ||
                 !recoveryVerified ||
                 confirmation !== "RESTORE"
               }
+              onClick={restore}
             >
               <Upload size={16} />
 
@@ -568,7 +569,7 @@ export function CompleteWorkspaceBackup() {
         )}
       </div>
 
-      {/* STATUS AND ERROR */}
+      {/* ERRORS AND STATUS */}
 
       {error && (
         <p
