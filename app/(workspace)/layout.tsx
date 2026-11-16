@@ -1,9 +1,7 @@
 
-import type { ReactNode } from "react";
-
-// ==========================================
-// FINANCIAL DATA PROVIDERS
-// ==========================================
+import type {
+  ReactNode,
+} from "react";
 
 import {
   TransactionProvider,
@@ -13,9 +11,13 @@ import {
   CategoryProvider,
 } from "@/components/categories/category-provider";
 
-// ==========================================
-// APPLICATION LAYOUT COMPONENTS
-// ==========================================
+import {
+  RecurringAutomationHost,
+} from "@/components/recurring/recurring-automation-host";
+
+import {
+  CrossTabWarning,
+} from "@/components/reliability/cross-tab-warning";
 
 import {
   AppSidebar,
@@ -34,14 +36,6 @@ import {
 } from "@/components/layout/page-transition";
 
 // ==========================================
-// RECURRING AUTOMATION
-// ==========================================
-
-import {
-  RecurringAutomationHost,
-} from "@/components/recurring/recurring-automation-host";
-
-// ==========================================
 // WORKSPACE LAYOUT
 // ==========================================
 
@@ -54,29 +48,16 @@ export default function WorkspaceLayout({
     <TransactionProvider>
       <CategoryProvider>
 
-        {/* ==================================
-            RECURRING AUTOMATION HOST
-            ==================================
-
-            Must be inside BOTH providers.
-
-            Handles optional recurring
-            transaction automation.
-
-            Renders no visible interface.
-        */}
+        {/* Both components require
+            the finance workspace. */}
 
         <RecurringAutomationHost />
 
-        {/* ==================================
-            MAIN APPLICATION CONTAINER
-            ================================== */}
+        {/* MAIN APPLICATION SHELL */}
 
         <div className="min-h-dvh overflow-x-hidden bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white">
 
-          {/* ================================
-              ACCESSIBILITY SKIP LINK
-              ================================ */}
+          {/* ACCESSIBILITY SKIP LINK */}
 
           <a
             href="#main-content"
@@ -85,23 +66,18 @@ export default function WorkspaceLayout({
             Skip to main content
           </a>
 
-          {/* ================================
-              DESKTOP SIDEBAR
-              ================================ */}
+          {/* NEW: CROSS-TAB WARNING */}
+
+          <CrossTabWarning />
+
+          {/* DESKTOP SIDEBAR */}
 
           <AppSidebar />
 
-          {/* ================================
-              MAIN WORKSPACE
-              ================================ */}
+          {/* HEADER AND PAGE CONTENT */}
 
           <div className="min-w-0 lg:pl-64">
-
-            {/* Application header */}
-
             <AppHeader />
-
-            {/* Main page content */}
 
             <main
               id="main-content"
@@ -111,15 +87,11 @@ export default function WorkspaceLayout({
                 {children}
               </PageTransition>
             </main>
-
           </div>
 
-          {/* ================================
-              MOBILE NAVIGATION
-              ================================ */}
+          {/* MOBILE NAVIGATION */}
 
           <MobileNav />
-
         </div>
 
       </CategoryProvider>

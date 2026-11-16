@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Wallet,
-  ShieldCheck,
+  
 } from "lucide-react";
 
 import {

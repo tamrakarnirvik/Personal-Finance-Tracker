@@ -93,7 +93,7 @@ function Metric({
         />
       </div>
 
-      <p className="mt-3 break-words text-xl font-semibold tabular-nums sm:text-2xl">
+      <p className="mt-3 wrap-break-word text-xl font-semibold tabular-nums sm:text-2xl">
         {formatNpr(paisa)}
       </p>
     </div>
@@ -1068,7 +1068,7 @@ export function ReportsWorkspace() {
               </p>
             ) : (
               <div className="overflow-x-auto rounded-xl border border-border">
-                <table className="w-full min-w-[720px] text-left text-sm">
+                <table className="w-full min-w-180 text-left text-sm">
                   <thead className="bg-muted/50 text-xs text-muted-foreground">
                     <tr>
                       <th className="px-3 py-3 font-medium">
